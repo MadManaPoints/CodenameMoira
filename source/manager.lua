@@ -18,8 +18,8 @@ function Manager:loadNewScene(x, y, isPlayerOne)
     CurrentCheckpointY = y
 
     if not isPlayerOne then
-        Tati = Player(x, y, true, false, 2)
+        Tati = P2(x, y, true, false)
     else
-        Manny = Player(x, y, true, true, 1)
+        Manny = P1(x, y, true, true)
     end
 end

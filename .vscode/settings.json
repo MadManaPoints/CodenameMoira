@@ -11,7 +11,8 @@
     // Personal preference: Disable nil check warnings - any function that creates a new object from a resource,
     // like gfx.image.new("path"), always triggers it so it gets annoying, but could miss real nil errors
     "Lua.diagnostics.disable": [
-        "need-check-nil"
+        "need-check-nil",
+        "unused-local"
     ],
     // Personal preference: Set default indent style to 4 spaces
     "Lua.format.defaultConfig": {

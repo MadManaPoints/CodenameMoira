@@ -13,6 +13,8 @@ import "collider"
 import "slingshot"
 import "timer"
 import "player"
+import "p1"
+import "p2"
 import "breakable"
 import "room"
 import "enemy"
@@ -44,12 +46,12 @@ local function initialize()
     --local kayak = Kayak(200, 200)
     --local chopping = Chopping()
     TwoPlayers = false
-    --Manny = Player(120, 24, true, true, 1)
-    --Manny = Player(380, 100, true, true, 1)
-    Tati = Player(380, 100, true, false, 2)
+    Manny = P1(120, 24, true, true)
+    --Manny = P1(380, 100, true, true)
+    --Tati = P2(380, 100, true, false)
 
     --local roomTest = Room("images/roomTest")
-    local firstRoom = 1
+    local firstRoom = 5
     RoomID = firstRoom
     local room1 = Room(firstRoom, "images/rooms/night1/room" .. tostring(firstRoom))
 
