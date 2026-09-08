@@ -363,10 +363,6 @@ function P2:roomCheck()
     if sword ~= nil then sword = nil end
 end
 
-function P2:currentItemCheck()
-    if flying then return false else return true end
-end
-
 function P2:collisionResponse(other)
     --P2.super.collisionResponse(self, other)
     if other:isa(Collider) then

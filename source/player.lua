@@ -181,7 +181,7 @@ function Player:roomCheck()
 end
 
 function Player:currentItemCheck()
-
+    if self.ability1 then return true else return false end
 end
 
 function Player:switchRooms(x, y)

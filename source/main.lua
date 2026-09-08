@@ -46,23 +46,15 @@ local function initialize()
     --local kayak = Kayak(200, 200)
     --local chopping = Chopping()
     TwoPlayers = false
-    Manny = P1(330, 30, true, true)
+    --Manny = P1(330, 30, true, true)
     --Manny = P1(380, 100, true, true)
-    --Tati = P2(380, 100, true, false)
+    Tati = P2(380, 100, true, false)
 
     --local roomTest = Room("images/roomTest")
-    local firstRoom = 3
+    local firstRoom = 1
     RoomID = firstRoom
     local room1 = Room(firstRoom, "images/rooms/night1/room" .. tostring(firstRoom))
 
-    RoomTracker = {
-        ["room1"] = { id = 1, up = nil, down = 3, left = 2, right = nil },
-        ["room2"] = { id = 2, up = nil, down = 4, left = nil, right = 1 },
-        ["room3"] = { id = 3, up = 1, down = 5, left = 4, right = nil },
-        ["room4"] = { id = 4, up = 2, down = 6, left = nil, right = 3 },
-        ["room5"] = { id = 5, up = 3, down = nil, left = 6, right = nil },
-        ["room6"] = { id = 6, up = nil, down = nil, left = nil, right = nil },
-    }
 
     --local co = coroutine.create(function() print("hi") end)
 end
