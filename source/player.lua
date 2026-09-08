@@ -187,7 +187,7 @@ end
 function Player:switchRooms(x, y)
     -- loop through all rooms and choose next room based on where player exits
     if x < 0 then
-        for k, r in pairs(RoomTracker) do
+        for k, r in pairs(Trackers.night.night1.rooms) do
             if r.id == RoomID then
                 self:roomCheck()
                 GAME_MANAGER:switchScene(Room(r.left, "images/rooms/night1/room" .. tostring(r.left)), 388, y,
@@ -197,7 +197,7 @@ function Player:switchRooms(x, y)
         end
     end
     if x > 400 then
-        for k, r in pairs(RoomTracker) do
+        for k, r in pairs(Trackers.night.night1.rooms) do
             if r.id == RoomID then
                 self:roomCheck()
                 GAME_MANAGER:switchScene(Room(r.right, "images/rooms/night1/room" .. tostring(r.right)), 12, y,
@@ -208,8 +208,7 @@ function Player:switchRooms(x, y)
     end
     if y < 0 then
         local newX = x
-        --print(newX)
-        for k, r in pairs(RoomTracker) do
+        for k, r in pairs(Trackers.night.night1.rooms) do
             if r.id == RoomID then
                 self:roomCheck()
                 GAME_MANAGER:switchScene(Room(r.up, "images/rooms/night1/room" .. tostring(r.up)), newX, 228,
@@ -218,13 +217,8 @@ function Player:switchRooms(x, y)
         end
     end
     if y > 240 then
-        --if state == states.climbing then
-        --    self.playerControl = true
-        --    state = states.idle
-        --end
         local newX = x
-        --print(newX)
-        for k, r in pairs(RoomTracker) do
+        for k, r in pairs(Trackers.night.night1.rooms) do
             if r.id == RoomID then
                 self:roomCheck()
                 if r.id == 4 then

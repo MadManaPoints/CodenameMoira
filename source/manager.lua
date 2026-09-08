@@ -3,7 +3,53 @@ local gfx <const> = pd.graphics
 
 Manager = {}
 
+Trackers =
+{
+    ["day"] = {},
+    ["night"] =
+    {
+        ["night1"] =
+        {
+            ["rooms"] =
+            {
+                ["room1"] =
+                {
+                    id = 1, up = nil, down = 3, left = 2, right = nil
+                },
+                ["room2"] =
+                {
+                    id = 2,
+                    up = nil,
+                    down = 4,
+                    left = nil,
+                    right = 1,
+                    ["brambles"] = { false, false, false, false, false, false, false, false }
+                },
+                ["room3"] =
+                {
+                    id = 3,
+                    up = 1,
+                    down = 5,
+                    left = 4,
+                    right = nil,
+                    ["enemies"] = { false, false }
+                },
+                ["room4"] =
+                {
+                    id = 4,
+                    up = 2,
+                    down = 6,
+                    left = nil,
+                    right = 3,
+                },
+                ["room5"] = { id = 5, up = 3, down = nil, left = 6, right = nil },
+                ["room6"] = { id = 6, up = nil, down = nil, left = nil, right = nil },
+            }
+        }
+    }
+}
 
+-- OLD --
 RoomTracker = {
     ["room1"] = { id = 1, up = nil, down = 3, left = 2, right = nil },
     ["room2"] = { id = 2, up = nil, down = 4, left = nil, right = 1 },
@@ -12,6 +58,7 @@ RoomTracker = {
     ["room5"] = { id = 5, up = 3, down = nil, left = 6, right = nil },
     ["room6"] = { id = 6, up = nil, down = nil, left = nil, right = nil },
 }
+
 
 
 class('Manager').extends()

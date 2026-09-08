@@ -46,7 +46,7 @@ local function initialize()
     --local kayak = Kayak(200, 200)
     --local chopping = Chopping()
     TwoPlayers = false
-    --Manny = P1(330, 30, true, true)
+    --Manny = P1(360, 160, true, true)
     --Manny = P1(380, 100, true, true)
     Tati = P2(380, 100, true, false)
 
@@ -54,7 +54,6 @@ local function initialize()
     local firstRoom = 1
     RoomID = firstRoom
     local room1 = Room(firstRoom, "images/rooms/night1/room" .. tostring(firstRoom))
-
 
     --local co = coroutine.create(function() print("hi") end)
 end

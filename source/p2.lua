@@ -24,7 +24,7 @@ local spriteSheet =
     femaleWalk = gfx.imagetable.new("images/femaleWalk/femaleWalk"),
     femaleFlying = gfx.imagetable.new("images/femaleFlying/femaleFlying"),
     log = gfx.image.new("images/log"),
-    sword = gfx.imagetable.new("images/swingAttack/swingAttack")
+    sword = gfx.imagetable.new("images/swingAttack/swingAttack"),
 }
 
 local idleAnim = gfx.animation.loop.new(100, spriteSheet.femaleIdle, true)
@@ -72,7 +72,8 @@ local swordAnim =
     spinSlowForward = gfx.animation.loop.new(160, spriteSheet.sword, true),
     spinFastForward = gfx.animation.loop.new(75, spriteSheet.sword, true),
     spinSlowReverse = gfx.animation.loop.new(160, spriteSheet.sword, true),
-    spinFastReverse = gfx.animation.loop.new(75, spriteSheet.sword, true)
+    spinFastReverse = gfx.animation.loop.new(75, spriteSheet.sword, true),
+    tornado = gfx.animation.loop.new(120, spriteSheet.sword, true)
 }
 
 swordAnim.idle.startFrame = 11
@@ -87,6 +88,9 @@ swordAnim.spinFastReverse.startFrame = 6
 swordAnim.spinFastReverse.endFrame = 9
 swordAnim.spinSlowReverse.startFrame = 6
 swordAnim.spinSlowReverse.endFrame = 9
+
+swordAnim.tornado.startFrame = 14
+swordAnim.tornado.endFrame = 15
 
 local states =
 {
@@ -314,9 +318,10 @@ function P2:animationManager()
             elseif sword.spin >= 30 then
                 if not self.tornado then
                     self.tornado = true
-                    swordAnim.spinFastForward.frame = self.anim.frame
+                    --swordAnim.spinFastForward.frame = self.anim.frame
                 end
-                if self.anim ~= swordAnim.spinFastForward then self.anim = swordAnim.spinFastForward end
+                --if self.anim ~= swordAnim.spinFastForward then self.anim = swordAnim.spinFastForward end
+                if self.anim ~= swordAnim.tornado then self.anim = swordAnim.tornado end
             end
         elseif sword.spin < 0 then
             if sword.spin > -30 then
@@ -330,7 +335,8 @@ function P2:animationManager()
                     self.tornado = true
                     swordAnim.spinFastReverse.frame = self.anim.frame
                 end
-                if self.anim ~= swordAnim.spinFastReverse then self.anim = swordAnim.spinFastReverse end
+                --if self.anim ~= swordAnim.spinFastReverse then self.anim = swordAnim.spinFastReverse end
+                if self.anim ~= swordAnim.tornado then self.anim = swordAnim.tornado end
             end
         elseif sword.speed == 0 then
             swordAnim.spinSlowForward.frame = 1

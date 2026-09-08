@@ -5,7 +5,7 @@ Breakable = {}
 
 class('Breakable').extends(gfx.sprite)
 
-function Breakable:init(x, y)
+function Breakable:init(x, y, id, ded)
     self:moveTo(x, y)
     self:setCenter(0, 0)
     local img = gfx.imagetable.new("images/brambles/brambles")
@@ -15,7 +15,9 @@ function Breakable:init(x, y)
     self:setCollidesWithGroups({ 1, 2, 4 })
     self:setGroups(3)
     self.anim.paused = true
-    self.broken = false
+    self.broken = ded
+    self.id = id
+    if ded then self.anim.frame = self.lastFrame end
     self:setZIndex(4)
     self:setImage(self.anim:image())
     self:add()
@@ -23,6 +25,9 @@ end
 
 function Breakable:update()
     if self.broken and self.anim.frame ~= self.lastFrame then
+        -- Set specific bramble to broken for scene persistance
+        Trackers.night.night1.rooms["room" .. tostring(RoomID)].brambles[self.id] = true
+        -- Change sprite to broken brambles
         self.anim.frame = self.lastFrame
         self:setImage(self.anim:image())
     end

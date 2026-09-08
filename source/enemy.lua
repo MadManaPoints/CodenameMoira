@@ -19,7 +19,7 @@ swarmStart.endFrame = 6
 swarmIdle.startFrame = 7
 swarmIdle.endFrame = 9
 
-function Enemy:init(x, y, isSwarm, isMoving)
+function Enemy:init(x, y, isSwarm, isMoving, id, ded)
     self:setCenter(0.5, 0.5)
     self:moveTo(x, y)
     self:setCollideRect(5, 3, 13, 18)
@@ -27,6 +27,7 @@ function Enemy:init(x, y, isSwarm, isMoving)
     self.moving = isMoving
     self.anim = swarmStart
     self.ded = false
+    self.id = id
     self.updateTime = 0
     self.moveSpeed = 0.08
     self.startX = self.x
@@ -35,7 +36,11 @@ function Enemy:init(x, y, isSwarm, isMoving)
     self:setCollidesWithGroups({ 1, 2, 7 })
     self:setTag(5)
     self:setZIndex(20)
-    self:add()
+    if ded ~= nil and ded then
+        self:remove()
+    else
+        self:add()
+    end
 end
 
 function Enemy:update()
@@ -46,7 +51,11 @@ function Enemy:update()
         self:move()
     end
 
-    if self.ded then self:remove() end
+    if self.ded then
+        -- Set specific enemy to ded for scene persistence
+        Trackers.night.night1.rooms["room" .. tostring(RoomID)].enemies[self.id] = true
+        self:remove()
+    end
 end
 
 function Enemy:move()
