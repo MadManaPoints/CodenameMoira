@@ -93,13 +93,14 @@ local logDirections = { 3, 0, 0, 0, 3, 90, -3, 0, 0, 0, -3, 90 } -- temp
 -- Bug Spray --
 local spray = nil
 local isSpraying = false
+local sprayDir = "down"
 local sprayTimer = Timer(.75)
 
 
 class('P1').extends(Player)
 
-function P1:init(x, y, alone, isPlayerOne)
-    P1.super.init(self, x, y, alone, isPlayerOne)
+function P1:init(x, y, alone, isPlayerOne, currentDir)
+    P1.super.init(self, x, y, alone, isPlayerOne, currentDir)
     self.swingTargetTracker = 0
 
     self.anim = idleAnim -- set start animation
@@ -117,26 +118,22 @@ function P1:movement(_goalX, _goalY)
         -- set most recent button pressed as current direction
     elseif self.currentDir ~= self.heldDir[#self.heldDir] then
         self.currentDir = self.heldDir[#self.heldDir]
+        sprayDir = self.currentDir
     end
 
     if self.currentDir == "up" then
         if state ~= states.walking.back then state = states.walking.back end
-        if isSpraying then spray:changeDirection(self.x, self.y - 20) end
-
         _goalY -= speed
     elseif self.currentDir == "down" then
         if state ~= states.walking.front then state = states.walking.front end
-        if isSpraying then spray:changeDirection(self.x, self.y + 20) end
         _goalY += speed
     end
 
     if self.currentDir == "left" then
         if state ~= states.walking.left then state = states.walking.left end
-        if isSpraying then spray:changeDirection(self.x - 18, self.y) end
         _goalX -= speed
     elseif self.currentDir == "right" then
         if state ~= states.walking.right then state = states.walking.right end
-        if isSpraying then spray:changeDirection(self.x + 18, self.y) end
         _goalX += speed
     end
 
@@ -164,7 +161,7 @@ function P1:movement(_goalX, _goalY)
 end
 
 function P1:followParnter(_goalX, _goalY)
-    local goalX, goalY = Manny.prevX, Manny.prevY
+    local goalX, goalY = Tati.prevX, Tati.prevY
 
     ---- MOVE FOLLOWING PLAYER ----
     local actualX, actualY, collisions, numberOfCollisions = self:moveWithCollisions(goalX, goalY)
@@ -178,12 +175,13 @@ function P1:abilityManager()
 end
 
 function P1:climbManager()
-    if self.ability2 then
+    if self.ability1 then
         if state ~= states.climbing and pd.buttonJustPressed("A") then
             if not self.onTrigger then return end
             if isSpraying then self:bugSpray() end
             local info = self.triggerInfo
-            print(info[1])
+            self.heldDir = {}
+            self.currentDir = nil
             self.playerControl = false
             self:changeState(6, info[1] + 10, self.y, info[3])
             return
@@ -226,7 +224,7 @@ function P1:climbManager()
 end
 
 function P1:swingManager()
-    if self.ability2 and pd.buttonJustPressed("A") and self.onTrigger and self.triggerInfo[4] and state ~= states.swinging then
+    if self.ability1 and pd.buttonJustPressed("A") and self.onTrigger and self.triggerInfo[4] and state ~= states.swinging then
         self.anim = jumpAnim.firstPos
         self.playerControl = false
         state = states.swinging
@@ -326,6 +324,18 @@ end
 
 function P1:sprayManager()
     if isSpraying then
+        if sprayDir == "up" then
+            spray:changeDirection(self.x, self.y - 20)
+        elseif sprayDir == "down" then
+            spray:changeDirection(self.x, self.y + 20)
+        end
+
+        if sprayDir == "left" then
+            spray:changeDirection(self.x - 18, self.y)
+        elseif sprayDir == "right" then
+            spray:changeDirection(self.x + 18, self.y)
+        end
+
         local crank = pd.getCrankPosition()
         local change, acceleratedChange = pd.getCrankChange()
         if (acceleratedChange > 15 or acceleratedChange < -15) and (crank > 270 or crank < 90) then
@@ -453,8 +463,8 @@ end
 
 function P1:bugSpray()
     if state == states.climbing then return end
-    if self.ability2 then self.ability2 = false end
-    self.ability1 = true
+    if self.ability1 then self.ability1 = false end
+    self.ability2 = true
     if spray == nil then
         spray = Spray(self.x, self.y + 20, 20, 20)
         spray:setZIndex(4)
@@ -473,8 +483,8 @@ end
 
 function P1:pole()
     if isSpraying then self:bugSpray() end
-    if self.ability1 then self.ability1 = false end
-    self.ability2 = true
+    if self.ability2 then self.ability2 = false end
+    self.ability1 = true
 end
 
 function P1:abilityOne()

@@ -91,7 +91,7 @@ function Spray:init(x, y, w, h)
     self.kCollisionTypeOverlap = true
     local sprayTable = gfx.imagetable.new("images/spray/spray")
     self.anim = gfx.animation.loop.new(100, sprayTable, true)
-    self:setCollidesWithGroups(4)
+    self:setCollidesWithGroups(6)
     self:setVisible(false)
     self:setCollisionsEnabled(false)
     self:setUpdatesEnabled(false)
@@ -100,7 +100,6 @@ function Spray:init(x, y, w, h)
 end
 
 function Spray:update()
-    --Collider.update(self)
     self:setImage(self.anim:image())
 end
 

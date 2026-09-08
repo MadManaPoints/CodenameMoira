@@ -46,12 +46,12 @@ local function initialize()
     --local kayak = Kayak(200, 200)
     --local chopping = Chopping()
     TwoPlayers = false
-    Manny = P1(120, 24, true, true)
+    Manny = P1(330, 30, true, true)
     --Manny = P1(380, 100, true, true)
     --Tati = P2(380, 100, true, false)
 
     --local roomTest = Room("images/roomTest")
-    local firstRoom = 5
+    local firstRoom = 3
     RoomID = firstRoom
     local room1 = Room(firstRoom, "images/rooms/night1/room" .. tostring(firstRoom))
 

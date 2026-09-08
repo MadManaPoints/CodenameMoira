@@ -101,8 +101,8 @@ local state = states.idle
 
 class('P2').extends(Player)
 
-function P2:init(x, y, alone, isPlayerOne)
-    P2.super.init(self, x, y, alone, isPlayerOne)
+function P2:init(x, y, alone, isPlayerOne, currentDir, abilityOneEquipped)
+    P2.super.init(self, x, y, alone, isPlayerOne, currentDir, abilityOneEquipped)
 
     self.anim = idleAnim -- set start animation
 end
@@ -259,17 +259,11 @@ function Player:fly()
     if not flying then
         state = states.flying.right
         speed = 6
-    else
-        state = states.idle
-        speed = 3
+        flying = true
     end
 
-    flying = not flying
-    if self.ability2 then
-        self.ability2 = false
-    end
-
-    if not self.ability1 then self.ability1 = true end
+    if self.ability1 then self.ability1 = false end
+    if not self.ability2 then self.ability2 = true end
 end
 
 function Player:swordManager()
@@ -289,13 +283,11 @@ function Player:swordManager()
     if state ~= states.sword then
         self:setCollideRect(17, 12, 13, 18)
         state = states.sword
-    else
-        state = states.idle
     end
 
-    swordEquipped = not swordEquipped
-    if self.ability1 then self.ability1 = false end
-    if not self.ability2 then self.ability2 = true end
+    swordEquipped = true
+    if self.ability2 then self.ability2 = false end
+    if not self.ability1 then self.ability1 = true end
 end
 
 function P2:abilityOne()
@@ -365,6 +357,14 @@ function P2:animationManager()
     elseif state == states.flying.back then
         if self.anim ~= flyAnim.back then self.anim = flyAnim.back end
     end
+end
+
+function P2:roomCheck()
+    if sword ~= nil then sword = nil end
+end
+
+function P2:currentItemCheck()
+    if flying then return false else return true end
 end
 
 function P2:collisionResponse(other)

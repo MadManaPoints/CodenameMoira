@@ -6,7 +6,7 @@ Player = {}
 
 class('Player').extends(gfx.sprite)
 
-function Player:init(x, y, alone, isPlayerOne)
+function Player:init(x, y, alone, isPlayerOne, currentDir, abilityOneEquipped)
     self:setCenter(0.5, 0.5)
     self:moveTo(x, y)
     self:setCollideRect(5, 3, 13, 18)
@@ -14,12 +14,22 @@ function Player:init(x, y, alone, isPlayerOne)
     self.playerControl = true
 
     -- Movement --
-    self.currentDir = nil
+    self.currentDir = currentDir
     self.allDir = { "up", "down", "left", "right" }
     self.heldDir = {}
+    -- Add current direction if switching screens
+    if self.currentDir ~= nil then table.insert(self.heldDir, self.currentDir) end
 
     self.isPlayerOne = isPlayerOne
-    self.ability1, self.ability2 = false, false
+
+    if abilityOneEquipped ~= nil then
+        print(abilityOneEquipped)
+        self.ability1 = abilityOneEquipped and true or false
+        self.ability2 = abilityOneEquipped and true or false
+    else
+        self.ability1 = true
+        self.ability2 = false
+    end
     self.onTrigger = false
     self.triggerInfo = nil
 
@@ -49,10 +59,21 @@ function Player:init(x, y, alone, isPlayerOne)
     self:setTag(tag)
     self:setGroups(2)
     self:setZIndex(5)
+
+    self.abilityAdded = false
     self:add()
 end
 
 function Player:update()
+    if not self.abilityAdded then
+        self.abilityAdded = true
+        if self.ability1 then
+            self:abilityOne()
+        else
+            self:abilityTwo()
+        end
+    end
+
     -- Checkpoint --
     if self.ded then
         --self:swordManager()
@@ -123,10 +144,10 @@ function Player:animationManager()
 end
 
 function Player:itemSelect()
-    if not self.ability2 and pd.buttonJustPressed("A") then
+    if self.ability2 and pd.buttonJustPressed("A") then
         self:abilityOne()
     end
-    if not self.ability1 and pd.buttonJustPressed("B") then
+    if self.ability1 and pd.buttonJustPressed("B") then
         self:abilityTwo()
     end
 end
@@ -139,14 +160,38 @@ function Player:abilityTwo()
 
 end
 
+function Player:leftRoomCheck()
+
+end
+
+function Player:rightRoomCheck()
+
+end
+
+function Player:upRoomCheck()
+
+end
+
+function Player:rightRoomCheck()
+
+end
+
+function Player:roomCheck()
+
+end
+
+function Player:currentItemCheck()
+
+end
+
 function Player:switchRooms(x, y)
     -- loop through all rooms and choose next room based on where player exits
     if x < 0 then
         for k, r in pairs(RoomTracker) do
             if r.id == RoomID then
-                --if sword ~= nil then sword = nil end
+                self:roomCheck()
                 GAME_MANAGER:switchScene(Room(r.left, "images/rooms/night1/room" .. tostring(r.left)), 388, y,
-                    self.isPlayerOne)
+                    self.isPlayerOne, self.currentDir, self:currentItemCheck())
                 break
             end
         end
@@ -154,8 +199,9 @@ function Player:switchRooms(x, y)
     if x > 400 then
         for k, r in pairs(RoomTracker) do
             if r.id == RoomID then
+                self:roomCheck()
                 GAME_MANAGER:switchScene(Room(r.right, "images/rooms/night1/room" .. tostring(r.right)), 12, y,
-                    self.isPlayerOne)
+                    self.isPlayerOne, self.currentDir, self:currentItemCheck())
                 break
             end
         end
@@ -165,8 +211,9 @@ function Player:switchRooms(x, y)
         --print(newX)
         for k, r in pairs(RoomTracker) do
             if r.id == RoomID then
+                self:roomCheck()
                 GAME_MANAGER:switchScene(Room(r.up, "images/rooms/night1/room" .. tostring(r.up)), newX, 228,
-                    self.isPlayerOne)
+                    self.isPlayerOne, self.currentDir, self:currentItemCheck())
             end
         end
     end
@@ -179,6 +226,7 @@ function Player:switchRooms(x, y)
         --print(newX)
         for k, r in pairs(RoomTracker) do
             if r.id == RoomID then
+                self:roomCheck()
                 if r.id == 4 then
                     self.isPlayerOne = true
                     GAME_MANAGER:switchScene(Room(1, "images/rooms/night1/room1"), 380, 100,
@@ -186,7 +234,7 @@ function Player:switchRooms(x, y)
                     break
                 else
                     GAME_MANAGER:switchScene(Room(r.down, "images/rooms/night1/room" .. tostring(r.down)), newX, 12,
-                        self.isPlayerOne)
+                        self.isPlayerOne, self.currentDir, self:currentItemCheck())
                     break
                 end
             end
