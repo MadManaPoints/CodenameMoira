@@ -94,8 +94,7 @@ local logDirections = { 3, 0, 0, 0, 3, 90, -3, 0, 0, 0, -3, 90 } -- temp
 local spray = nil
 local isSpraying = false
 local sprayDir = "down"
-local sprayTimer = Timer(.75)
-
+local sprayTimer = Timer(0.7)
 
 class('P1').extends(Player)
 
@@ -192,7 +191,7 @@ function P1:climbManager()
             local change, acceleratedChange = pd.getCrankChange()
             if self.y > minClimbRange then
                 if change > 30 then
-                    self:moveBy(0, -1)
+                    self:moveBy(0, -1.5)
                 end
             else
                 self.y = minClimbRange
@@ -207,7 +206,7 @@ function P1:climbManager()
 
             if self.y < maxClimbRange then
                 if change < -30 then
-                    self:moveBy(0, 1)
+                    self:moveBy(0, 2)
                 end
             else
                 self.y = maxClimbRange
@@ -324,6 +323,7 @@ end
 
 function P1:sprayManager()
     if isSpraying then
+        -- Change direction of spray based on movement direction
         if sprayDir == "up" then
             spray:changeDirection(self.x, self.y - 20)
         elseif sprayDir == "down" then
@@ -338,32 +338,31 @@ function P1:sprayManager()
 
         local crank = pd.getCrankPosition()
         local change, acceleratedChange = pd.getCrankChange()
-        if (acceleratedChange > 15 or acceleratedChange < -15) and (crank > 270 or crank < 90) then
-            if not sprayTimer.timeout then
-                if not spray:isVisible() then
-                    print(" YO YO YO")
-                    spray:setUpdatesEnabled(true)
-                    spray:setCollisionsEnabled(true)
-                    spray:setVisible(true)
-                end
-                if not sprayTimer.startTimer then
-                    sprayTimer.startTimer = true
-                end
-                sprayTimer.startTimer = true
-                sprayTimer.targetTime = pd.getElapsedTime() + sprayTimer.totalTime
-            else
-                sprayTimer.startTimer = true
-                sprayTimer.targetTime = pd.getElapsedTime() + sprayTimer.totalTime
-                sprayTimer.timeout = false
+
+        -- Show spray sprite if player is moving crank
+        if change > 10 or change < -10 then
+            if not spray:isVisible() then
+                spray:setUpdatesEnabled(true)
+                spray:setCollisionsEnabled(true)
+                spray:setVisible(true)
             end
-        else
+
+            if sprayTimer.startTimer then sprayTimer.startTimer = false end
+        elseif spray:isVisible() then
+            -- If player stops moving and spray is visible, start spray timer
+            if not sprayTimer.startTimer then
+                sprayTimer.targetTime = pd.getElapsedTime() + sprayTimer.totalTime
+                sprayTimer.startTimer = true
+            end
+
+            -- Turn off spray if player doesn't move crank before timer goes off
             if sprayTimer.timeout then
-                if spray:isVisible() then
-                    sprayTimer.startTimer = false
-                    spray:setVisible(false)
-                    spray:setCollisionsEnabled(false)
-                    spray:setUpdatesEnabled(false)
-                end
+                spray:setVisible(false)
+                spray:setCollisionsEnabled(false)
+
+                -- Reset timer variables
+                sprayTimer.startTimer = false
+                sprayTimer.timeout = false
             end
         end
     end
@@ -518,6 +517,10 @@ function P1:animationManager()
     elseif state == states.idle then
         if self.anim ~= idleAnim then self.anim = idleAnim end
     end
+end
+
+function P1:roomCheck()
+    if state == states.climbing then state = states.idle end
 end
 
 function P1:collisionResponse(other)

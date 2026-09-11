@@ -3,21 +3,34 @@ local gfx <const> = pd.graphics
 
 Room = {}
 
+local backgrounds = gfx.imagetable.new("images/rooms/night1/room5Table/room5")
+local animatedRoom = gfx.animation.loop.new(200, backgrounds, true)
+
 class('Room').extends(gfx.sprite)
 
-function Room:init(roomNum, img)
+function Room:init(roomNum, img, isAnimated)
     self:setCenter(0, 0)
     self:moveTo(0, 0)
     RoomID = roomNum
     self.roomNumber = RoomID
-    local roomImg = gfx.image.new(img)
-    self:setImage(roomImg)
+    if isAnimated then
+        -- temp -- prototype has only one animated room for now --
+        self.anim = animatedRoom
+        self:setImage(self.anim:image())
+    else
+        local roomImg = gfx.image.new(img)
+        self:setImage(roomImg)
+    end
     self.createRoom = false
     self:setZIndex(1)
     self:add()
 end
 
 function Room:update()
+    if self.anim ~= nil then
+        self:setImage(self.anim:image())
+    end
+
     if not self.createRoom then
         self:updateColliders()
         self.createRoom = true
@@ -99,9 +112,9 @@ function Room:updateColliders()
     end
 
     if RoomID == 4 then
-        local enemy1 = Enemy(40, 70, false, false, 1, Trackers.night.night1.rooms.room4.enemies.monster1[1])
-        local enemy2 = Enemy(60, 180, false, false, 2, Trackers.night.night1.rooms.room4.enemies.monster2[1])
-        local enemy3 = Enemy(200, 150, false, false, 3, Trackers.night.night1.rooms.room4.enemies.monster2[1])
+        local enemy1 = Enemy(38, 60, false, false, 1, Trackers.night.night1.rooms.room4.enemies.monster1[1])
+        local enemy2 = Enemy(62, 180, false, false, 2, Trackers.night.night1.rooms.room4.enemies.monster2[1])
+        local enemy3 = Enemy(213, 132, false, false, 3, Trackers.night.night1.rooms.room4.enemies.monster2[1])
         local cliff1 = Collider(280, 65, 47, 49)
         local stump = Collider(291, 14, 24, 5)
         local stumpTrigger = Trigger(294, 23, 18, 4, 135, false, false, false)
@@ -115,6 +128,7 @@ function Room:updateColliders()
         local border8 = Collider(279, 163, 121, 5)
         local border9 = Collider(328, 109, 72, 5)
         local border10 = Collider(250, -5, 150, 5)
+        local willow = WorldObject(113, 109, "images/worldObjects/willowTree.png", true)
     end
 
     if RoomID == 5 then

@@ -34,7 +34,7 @@ pd.startAccelerometer()
 
 GAME_MANAGER = Manager()
 -- 380, 100
-local startX, startY = 250, 30
+local startX, startY = 380, 100
 CurrentCheckpointX = startX
 CurrentCheckpointY = startY
 
@@ -53,11 +53,11 @@ local function initialize()
     --local chopping = Chopping()
     TwoPlayers = false
     --Manny = P1(150, 30, true, true)
-    --Manny = P1(380, 100, true, true)
+    --Manny = P1(380, 200, true, true)
     Tati = P2(startX, startY, true, false)
 
     --local roomTest = Room("images/roomTest")
-    local firstRoom = 4
+    local firstRoom = 1
     RoomID = firstRoom
     local room1 = Room(firstRoom, "images/rooms/night1/room" .. tostring(firstRoom))
 
@@ -81,7 +81,7 @@ function pd.update()
         ChangePlaces()
     end
 
-    P:drawGrid()
+    --P:drawGrid()
     --P:updatePath()
 end
 
@@ -92,15 +92,13 @@ function ChangePlaces()
         Tati:moveTo(Manny.x, Manny.y)
 
         pd.getSystemMenu():removeAllMenuItems()
-        pd.getSystemMenu():addMenuItem("Map", initialize)
-        pd.getSystemMenu():addMenuItem("Paddle", initialize)
+        -- new menu items go here
     else
         Manny.prevX, Manny.prevY = Tati.prevX, Tati.prevY
         Manny:moveTo(Tati.x, Tati.y)
 
         pd.getSystemMenu():removeAllMenuItems()
-        pd.getSystemMenu():addMenuItem("Bug Spray", initialize)
-        pd.getSystemMenu():addMenuItem("Fishing Rod", initialize)
+        -- new menu items go here
     end
 
     Manny.following = not Manny.following

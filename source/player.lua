@@ -10,7 +10,6 @@ function Player:init(x, y, alone, isPlayerOne, currentDir, abilityOneEquipped)
     self:setCenter(0.5, 0.5)
     self:moveTo(x, y)
     self:setCollideRect(5, 3, 13, 18)
-
     self.playerControl = true
 
     -- Movement --
@@ -226,6 +225,9 @@ function Player:switchRooms(x, y)
                     GAME_MANAGER:switchScene(Room(1, "images/rooms/night1/room1"), 380, 100,
                         self.isPlayerOne)
                     break
+                elseif r.id == 3 then
+                    GAME_MANAGER:switchScene(Room(r.down, "images/rooms/night1/room" .. tostring(r.down), true), newX, 12,
+                        self.isPlayerOne)
                 else
                     GAME_MANAGER:switchScene(Room(r.down, "images/rooms/night1/room" .. tostring(r.down)), newX, 12,
                         self.isPlayerOne, self.currentDir, self:currentItemCheck())

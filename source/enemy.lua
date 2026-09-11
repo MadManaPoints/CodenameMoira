@@ -29,6 +29,7 @@ function Enemy:init(x, y, isSwarm, isMoving, id, ded)
     self.startY = y
     self.swarm = isSwarm
     if not self.swarm then
+        self.chaseDistance = 80
         local img = gfx.image.new("images/monster")
         self:setImage(img)
         self:setCollideRect(15, 20, 18, 13)
@@ -101,6 +102,13 @@ function Enemy:update()
             return
         end
 
+        if Tati == nil then return end -- temp (we don't need it to detect other player this sprint)
+        local chase = math.sqrt((Tati.x - self.x) ^ 2 + (Tati.y - self.y) ^ 2) < self.chaseDistance
+        if not chase then return end
+
+        -- Increase chase distance once player is spotted
+        if self.chaseDistance ~= 180 then self.chaseDistance = 180 end
+
         -- **NOTE: I don't love having to map everything to the grid, but I'll leave it like this for now** --
         local x, y = math.floor(map(self.x, 0, 400, 1, 16)), math.floor(map(self.y, 0, 240, 1, 10))
         local targetX, targetY = math.floor(map(Tati.x, 0, 400, 1, 16)), math.floor(map(Tati.y, 0, 240, 1, 10))
@@ -110,6 +118,10 @@ function Enemy:update()
         if endNode == nil then return end -- return if target doesn't exist
         local path = P.graph:findPath(startNode, endNode, nil)
 
+        -- Return still if path to player is blocked
+        if path == nil then return end
+
+        -- If path is not blocked and player is at least one node away, go toward player --
         if path[2] ~= nil then
             local goalX, goalY = self.x, self.y
 
