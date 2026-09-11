@@ -69,6 +69,7 @@ function Room:updateColliders()
     end
 
     if self.roomNumber == 3 then
+        --local waterfall = Waterfall(28, 57, false)
         local cliff1 = Collider(255, 77, 127, 36)
         local slingshot = Slingshot(125, 150, 1)
         --local jumpTrigger = Trigger(32, 116, 35, 42, 140, false, true)
@@ -98,6 +99,9 @@ function Room:updateColliders()
     end
 
     if RoomID == 4 then
+        local enemy1 = Enemy(40, 70, false, false, 1, Trackers.night.night1.rooms.room4.enemies.monster1[1])
+        local enemy2 = Enemy(60, 180, false, false, 2, Trackers.night.night1.rooms.room4.enemies.monster2[1])
+        local enemy3 = Enemy(200, 150, false, false, 3, Trackers.night.night1.rooms.room4.enemies.monster2[1])
         local cliff1 = Collider(280, 65, 47, 49)
         local stump = Collider(291, 14, 24, 5)
         local stumpTrigger = Trigger(294, 23, 18, 4, 135, false, false, false)
@@ -120,7 +124,8 @@ function Room:updateColliders()
         local border4 = Collider(359, 84, 19, 16)
         local border5 = Collider(335, 212, 19, 16)
         local border6 = Collider(19, 196, 19, 16)
-        local log = Trigger(165, 86, 20, 20, 0, false, false, true)
+        local log = LogPole(174, 94, 20, 20, 0, false, false, true)
+        --local log1 = WorldObject(174, 94, "images/worldObjects/log")
         --local exit = Collider(35, 32, 40, 30)
     end
 

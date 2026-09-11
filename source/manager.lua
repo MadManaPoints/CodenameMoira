@@ -14,7 +14,11 @@ Trackers =
             {
                 ["room1"] =
                 {
-                    id = 1, up = nil, down = 3, left = 2, right = nil
+                    id = 1,
+                    up = nil,
+                    down = 3,
+                    left = 2,
+                    right = nil
                 },
                 ["room2"] =
                 {
@@ -41,6 +45,12 @@ Trackers =
                     down = 6,
                     left = nil,
                     right = 3,
+                    ["enemies"] =
+                    {
+                        ["monster1"] = { false, x = 0, y = 0 },
+                        ["monster2"] = { false, x = 0, y = 0 },
+                        ["monster3"] = { false, x = 0, y = 0 }
+                    }
                 },
                 ["room5"] = { id = 5, up = 3, down = nil, left = 6, right = nil },
                 ["room6"] = { id = 6, up = nil, down = nil, left = nil, right = nil },

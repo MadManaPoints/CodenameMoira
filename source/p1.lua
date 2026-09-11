@@ -372,8 +372,8 @@ end
 function P1:logFishing()
     if self.onTrigger and self.triggerInfo[5] and not self.onLog then
         self.onLog = true; self.playerControl = false; self:setImage(spriteSheet.log); self:moveTo(
-            self.triggerInfo[1] + 10,
-            self.triggerInfo[2] + 10)
+            self.triggerInfo[1],
+            self.triggerInfo[2])
         self:setCollideRect(0, 6, 32, 20)
     end
 

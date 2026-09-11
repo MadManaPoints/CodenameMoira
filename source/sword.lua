@@ -2,6 +2,8 @@ local pd <const> = playdate
 local gfx <const> = pd.graphics
 
 local delta = 0.0
+local spinRange = 10.0
+local spinSpeed = 3.0
 
 Sword = {}
 
@@ -12,10 +14,10 @@ function Sword:init(x, y)
     self:setZIndex(0)
     local swordImg = gfx.image.new("images/sword2")
     self:setImage(swordImg)
-    self:setCollideRect(-5, -13, 40, 40)
+    self:setCollideRect(2, -10, 24, 25)
     self:moveTo(x, y)
     self:setTag(26)
-    self:setCollidesWithGroups({ 3 })
+    self:setCollidesWithGroups({ 3, 6 })
     self:setGroups(4)
 
     self.realX = Tati.x
@@ -55,48 +57,42 @@ function Sword:update()
         -- balancing feedback loop to revert spin back to 0 over time
         -- for positive (clockwise) spin
         if self.spin > 0.1 then
-            self.spin -= delta * 10.0
+            self.spin -= delta * spinSpeed
         elseif self.spin > 0 and self.spin < 0.1 then
             self.spin = 0
         end
 
         -- for negative (anticlockwise) spin
         if self.spin < -0.1 then
-            self.spin += delta * 10.0
+            self.spin += delta * spinSpeed
         elseif self.spin > -0.1 and self.spin < 0 then
             self.spin = 0
         end
     end
 
     -- calculate spin based on crank speed
-    if acceleratedChange > 20 or acceleratedChange < -20 then
-        self.spin += spinStrength * delta * 3.0
+    if acceleratedChange > 10 or acceleratedChange < -10 then
+        self.spin += spinStrength * delta * 2.0
     end
 
     -- clamp positive spin number
-    if self.spin > 60.0 then
-        self.spin = 60.0
+    if self.spin > spinRange then
+        self.spin = spinRange
     end
 
     -- clamp negative spin number
-    if self.spin < -60.0 then
-        self.spin = -60.0
+    if self.spin < -spinRange then
+        self.spin = -spinRange
     end
 
     -- get player position as target position
     local goalX, goalY = Tati.x, Tati.y
 
-    -- rotate basesd on spin when held
-    if self.held then
-        --Tati:setRotation(Tati:getRotation() + self.spin)
-        --print(self.spin)
-    end
-
     local actualX, actualY, collisions, numberOfCollisions = self:moveWithCollisions(goalX, goalY)
 
     if self.held then
         -- map throw speed to spin strength
-        self.speed = Sword:map(self.spin, -60, 60, -15, 15)
+        self.speed = Sword:map(self.spin, -spinRange, spinRange, -15, 15)
     end
 end
 
@@ -119,6 +115,11 @@ function Sword:collisionResponse(other)
             other.broken = true
         end
 
+        return 'overlap'
+    end
+
+    if other:isa(Enemy) and not other.swarm then
+        if Tati.tornado and not other.ded then other.ded = true end
         return 'overlap'
     end
 end

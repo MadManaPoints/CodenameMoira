@@ -53,12 +53,16 @@ local flyAnim =
 {
     idle = gfx.animation.loop.new(150, spriteSheet.femaleFlying, true),
     right = gfx.animation.loop.new(150, spriteSheet.femaleFlying, true),
+    left = gfx.animation.loop.new(150, spriteSheet.femaleFlying, true),
     front = gfx.animation.loop.new(150, spriteSheet.femaleFlying, true),
     back = gfx.animation.loop.new(150, spriteSheet.femaleFlying, true)
 }
 
 flyAnim.right.startFrame = 1
 flyAnim.right.endFrame = 2
+
+flyAnim.left.startFrame = 7
+flyAnim.left.endFrame = 8
 
 flyAnim.front.startFrame = 3
 flyAnim.front.endFrame = 4
@@ -149,7 +153,7 @@ function P2:movement(_goalX, _goalY)
         if not flying and state ~= states.sword then
             if state ~= states.walking.left then state = states.walking.left end
         elseif flying then
-            --pending
+            if state ~= states.flying.left then state = states.flying.left end
         end
         _goalX -= speed
     elseif (not flying and self.currentDir == "right") or flyDir[4] then
@@ -254,7 +258,7 @@ function Player:flyingManager()
 end
 
 function Player:fly()
-    if not canDismount then return end
+    if not canDismount or self.tornado then return end
 
     if swordEquipped then
         swordEquipped = false
@@ -262,7 +266,7 @@ function Player:fly()
 
     if not flying then
         state = states.flying.right
-        speed = 6
+        speed = 5
         flying = true
     end
 
@@ -309,38 +313,50 @@ end
 function P2:animationManager()
     if state == states.sword then
         if sword.spin > 0 then
-            if sword.spin < 30 then
+            -- If forward spin speed goes below threshold, end tornado animation
+            if sword.spin < 4 then
                 if self.tornado then
-                    self.tornado = false
-                    swordAnim.spinSlowForward.frame = self.anim.frame
+                    self.tornado = false                -- tracks when to turn off collision
+                    swordAnim.spinSlowForward.frame = 1 -- reset slow forward spin animation
                 end
+
+                -- Set new animation back to spin
                 if self.anim ~= swordAnim.spinSlowForward then self.anim = swordAnim.spinSlowForward end
-            elseif sword.spin >= 30 then
+            elseif sword.spin >= 4 then
+                -- If forward spin speed goes above threshold, start tornado animation
                 if not self.tornado then
-                    self.tornado = true
-                    --swordAnim.spinFastForward.frame = self.anim.frame
+                    self.tornado = true                 -- tracks when to apply collision
+                    swordAnim.spinSlowForward.frame = 1 -- reset animation
                 end
-                --if self.anim ~= swordAnim.spinFastForward then self.anim = swordAnim.spinFastForward end
+
+                -- Set tornado animation
                 if self.anim ~= swordAnim.tornado then self.anim = swordAnim.tornado end
             end
         elseif sword.spin < 0 then
-            if sword.spin > -30 then
+            -- If backward spin speed goes above threshold, end tornado animation
+            if sword.spin > -4 then
                 if self.tornado then
-                    self.tornado = false
-                    swordAnim.spinSlowReverse.frame = self.anim.frame
+                    self.tornado = false                -- tracks when to turn off collision
+                    swordAnim.spinSlowReverse.frame = 1 -- reset animation
                 end
+
+                -- Set animation back to spin
                 if self.anim ~= swordAnim.spinSlowReverse then self.anim = swordAnim.spinSlowReverse end
-            elseif sword.spin <= -30 then
+            elseif sword.spin <= -4 then
+                -- If backward spin goes below threshold, start tornado animation
                 if not self.tornado then
-                    self.tornado = true
-                    swordAnim.spinFastReverse.frame = self.anim.frame
+                    self.tornado = true                 -- tracks when to apply collision
+                    swordAnim.spinSlowReverse.frame = 1 -- reset animation
                 end
-                --if self.anim ~= swordAnim.spinFastReverse then self.anim = swordAnim.spinFastReverse end
+
+                -- Set tornado animation
                 if self.anim ~= swordAnim.tornado then self.anim = swordAnim.tornado end
             end
         elseif sword.speed == 0 then
+            -- End spin animation and reset frames when spin speed returns to 0
             swordAnim.spinSlowForward.frame = 1
-            swordAnim.spinFastForward.frame = 1
+            swordAnim.spinSlowReverse.frame = 1
+
             if self.anim ~= swordAnim.idle then self.anim = swordAnim.idle end
             if self.tornado then
                 self.tornado = false
@@ -358,6 +374,8 @@ function P2:animationManager()
         if self.anim ~= idleAnim then self.anim = idleAnim end
     elseif state == states.flying.right then
         if self.anim ~= flyAnim.right then self.anim = flyAnim.right end
+    elseif state == states.flying.left then
+        if self.anim ~= flyAnim.left then self.anim = flyAnim.left end
     elseif state == states.flying.front then
         if self.anim ~= flyAnim.front then self.anim = flyAnim.front end
     elseif state == states.flying.back then
@@ -390,9 +408,11 @@ function P2:collisionResponse(other)
     end
 
     if other:isa(Enemy) then
-        if other.swarm then
+        if not other.ded and not self.ded then
+            other.x = other.startX
+            other.y = other.startY
             self.ded = true
-            return 'overlap'
         end
+        return 'overlap'
     end
 end

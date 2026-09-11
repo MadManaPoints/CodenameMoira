@@ -6,6 +6,7 @@ import "CoreLibs/timer"
 import "CoreLibs/object"
 import "CoreLibs/math"
 import "CoreLibs/crank"
+import "CoreLibs/ui"
 
 --my scripts
 import "manager"
@@ -16,7 +17,10 @@ import "player"
 import "p1"
 import "p2"
 import "breakable"
+import "waterfall"
+import "worldobject"
 import "room"
+import "pathfinding"
 import "enemy"
 import "kayak"
 import "chopping"
@@ -29,8 +33,10 @@ local gfx <const> = pd.graphics
 pd.startAccelerometer()
 
 GAME_MANAGER = Manager()
-CurrentCheckpointX = 0
-CurrentCheckpointY = 0
+-- 380, 100
+local startX, startY = 250, 30
+CurrentCheckpointX = startX
+CurrentCheckpointY = startY
 
 local function initialize()
     local textImg = gfx.image.new(300, 20)
@@ -46,16 +52,18 @@ local function initialize()
     --local kayak = Kayak(200, 200)
     --local chopping = Chopping()
     TwoPlayers = false
-    --Manny = P1(360, 160, true, true)
+    --Manny = P1(150, 30, true, true)
     --Manny = P1(380, 100, true, true)
-    Tati = P2(380, 100, true, false)
+    Tati = P2(startX, startY, true, false)
 
     --local roomTest = Room("images/roomTest")
-    local firstRoom = 1
+    local firstRoom = 4
     RoomID = firstRoom
     local room1 = Room(firstRoom, "images/rooms/night1/room" .. tostring(firstRoom))
 
     --local co = coroutine.create(function() print("hi") end)
+    --pd.ui.crankIndicator:draw()
+    P = Pathfinding()
 end
 
 --local fishing = Fishing()
@@ -66,13 +74,15 @@ initialize()
 function pd.update()
     gfx.clear()
     gfx.sprite.update()
-
     --if fishing.canFish then
     --    gfx.drawText("START", 50, 50)
     --end
     if TwoPlayers and (pd.buttonJustPressed("B")) then
         ChangePlaces()
     end
+
+    P:drawGrid()
+    --P:updatePath()
 end
 
 function ChangePlaces()

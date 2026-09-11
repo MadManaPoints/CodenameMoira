@@ -7,10 +7,10 @@ class('Collider').extends(gfx.sprite)
 
 function Collider:init(x, y, w, h)
     self:moveTo(x, y)
-    self:setCollideRect(0, 0, w, h)
     self:setGroups(1)
     self:setTag(3)
     self.isTrigger = false
+    self:setCollideRect(0, 0, w, h)
     self:add()
 end
 
@@ -22,16 +22,6 @@ function Water:init(x, y, w, h)
     Water.super.init(self, x, y, w, h)
     self:setGroups(6)
     self:setTag(4)
-end
-
-LogPole = {}
-
-class('LogPole').extends(Collider)
-
-function LogPole:init(x, y, w, h, index)
-    LogPole.super.init(self, x, y, w, h)
-    self.used = false
-    self.index = index
 end
 
 Trigger = {}
@@ -80,6 +70,27 @@ end
 
 function Trigger:detectPlayer()
     if #self:overlappingSprites() == 1 then return true else return false end
+end
+
+LogPole = {}
+
+class('LogPole').extends(Trigger)
+
+function LogPole:init(x, y, w, h, goal, isExit, isJumpPlatform, isGrapple)
+    LogPole.super.init(self, x, y, w, h, goal, isExit, isJumpPlatform, isGrapple)
+    local sprite = gfx.image.new("images/worldObjects/log")
+    self:setImage(sprite)
+    self:setZIndex(4)
+    self.used = false
+    self.index = 1
+    self:setCollideRect(5, 10, w, h)
+end
+
+function LogPole:update()
+    LogPole.super.update(self)
+    if self:isVisible() and Manny.onLog then -- remove log trigger sprite when player steps on log
+        self:setVisible(false)
+    end
 end
 
 Spray = {}
