@@ -33,10 +33,12 @@ local gfx <const> = pd.graphics
 pd.startAccelerometer()
 
 GAME_MANAGER = Manager()
+Delta = 0
 -- 380, 100
 local startX, startY = 380, 100
 CurrentCheckpointX = startX
 CurrentCheckpointY = startY
+PlayerOneActive = false
 
 local function initialize()
     local textImg = gfx.image.new(300, 20)
@@ -53,36 +55,62 @@ local function initialize()
     --local chopping = Chopping()
     TwoPlayers = false
     --Manny = P1(150, 30, true, true)
-    --Manny = P1(380, 200, true, true)
-    Tati = P2(startX, startY, true, false)
+    --Manny = P1(100, 100, true, true)
+    --Tati = P2(startX, startY, true, false)
 
     --local roomTest = Room("images/roomTest")
-    local firstRoom = 1
+    local firstRoom = 6
     RoomID = firstRoom
-    local room1 = Room(firstRoom, "images/rooms/night1/room" .. tostring(firstRoom))
+    --local room1 = Room(firstRoom, "images/rooms/night1/room" .. tostring(firstRoom))
+
+    -- TEST MINIGAME --
+    GAME_MANAGER:startMinigame(Room(firstRoom, "images/rooms/night1/room" .. tostring(firstRoom)), 1)
 
     --local co = coroutine.create(function() print("hi") end)
     --pd.ui.crankIndicator:draw()
     P = Pathfinding()
+
+    local menu = playdate.getSystemMenu()
+    menu:addMenuItem("Switch", function() ChangeActivePlayer() end)
 end
 
 --local fishing = Fishing()
+
+--- **DEBUGGING** ---
+gfx.setColor(gfx.kColorWhite)
 
 initialize()
 
 
 function pd.update()
     gfx.clear()
+    Delta = pd.getElapsedTime()
     gfx.sprite.update()
     --if fishing.canFish then
     --    gfx.drawText("START", 50, 50)
     --end
-    if TwoPlayers and (pd.buttonJustPressed("B")) then
-        ChangePlaces()
-    end
+    --if TwoPlayers and (pd.buttonJustPressed("B")) then
+    --    ChangePlaces()
+    --end
+
+    --- **DEBUGGING** ---
+    --gfx.fillRect(0, 0, 80, 40)
+    --gfx.drawText(tostring(test), 10, 10)
 
     --P:drawGrid()
     --P:updatePath()
+end
+
+function SwitchPlayer()
+    pd.getSystemMenu():removeAllMenuItems()
+
+    local menu = playdate.getSystemMenu()
+    menu:addMenuItem("Switch", function() ChangeActivePlayer() end)
+end
+
+function ChangeActivePlayer()
+    PlayerOneActive = not PlayerOneActive
+    if not PlayerOneActive and Manny.onLog then Manny:logMinigameSwitch() end
 end
 
 function ChangePlaces()

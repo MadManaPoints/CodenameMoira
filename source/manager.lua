@@ -78,6 +78,17 @@ function Manager:switchScene(scene, x, y, isPlayerOne, currentDir, roomCheck)
     self:loadNewScene(x, y, isPlayerOne, currentDir, roomCheck)
 end
 
+function Manager:startMinigame(scene, minigameNum)
+    self.room = scene
+
+    local x1, y1, x2, y2
+    if minigameNum == 1 then
+        x1 = 370; y1 = 100
+        x2 = 50; y2 = 30
+    end
+    self:loadMinigame(x1, y1, x2, y2, minigameNum)
+end
+
 function Manager:loadNewScene(x, y, isPlayerOne, currentDir, roomCheck)
     gfx.sprite.removeAll() -- clear sprites before drawing new scene
     self.room:add()        -- adds scene set as argument in transition
@@ -89,5 +100,17 @@ function Manager:loadNewScene(x, y, isPlayerOne, currentDir, roomCheck)
         Tati = P2(x, y, true, false, currentDir, roomCheck)
     else
         Manny = P1(x, y, true, true, currentDir, roomCheck)
+    end
+end
+
+function Manager:loadMinigame(x1, y1, x2, y2, minigameNum)
+    gfx.sprite.removeAll()
+    self.room:add()
+
+    Tati = P2(x2, y2, true, false)
+    Manny = P1(x1, y1, true, true)
+
+    if minigameNum == 1 then
+        Manny:logMinigame()
     end
 end

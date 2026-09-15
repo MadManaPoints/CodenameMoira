@@ -144,6 +144,7 @@ function Room:updateColliders()
     end
 
     if RoomID == 6 then
+        local border3 = Collider(354, 5, 19, 16)
         local bramble1 = Collider(0, 0, 18, 240)
         local bramble2 = Collider(103, 0, 221, 17)
         local bramble3 = Collider(103, 18, 16, 39)
@@ -167,7 +168,7 @@ function Room:updateColliders()
         local water6 = Water(213, 18, 90, 37)
         local water7 = Water(233, 56, 70, 115)
         local water8 = Water(302, 181, 22, 39)
-        local water9 = Water(325, 0, 75, 240)
+        --local water9 = Water(325, 0, 75, 240)
         local exit = Collider(325, 224, 75, 16)
     end
 end

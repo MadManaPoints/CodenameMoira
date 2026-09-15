@@ -83,13 +83,17 @@ function Player:update()
 
     if not self.onLog then
         self:setImage(self.anim:image())
-        self:animationManager()
-        self:itemSelect()
+        if (PlayerOneActive and self.isPlayerOne) or (not PlayerOneActive and not self.isPlayerOne) then
+            self:animationManager()
+            self:itemSelect()
+        end
     end
 
     if not self.following then
         if self.alone then
-            self:abilityManager()
+            if (PlayerOneActive and self.isPlayerOne) or (not PlayerOneActive and not self.isPlayerOne) then
+                self:abilityManager()
+            end
         end
 
         self:switchRooms(self.x, self.y)
@@ -100,11 +104,12 @@ function Player:update()
 
         local goalX, goalY = self.x, self.y
 
-        self:directionalInputs()
-        self:movement(goalX, goalY)
+        if (PlayerOneActive and self.isPlayerOne) or (not PlayerOneActive and not self.isPlayerOne) then
+            self:directionalInputs()
+            self:movement(goalX, goalY)
+        end
     else
         local goalX, goalY = self.x, self.y
-
         self:followPartner(goalX, goalY)
     end
 end

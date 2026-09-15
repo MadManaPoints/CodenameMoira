@@ -207,7 +207,7 @@ function P2:movement(_goalX, _goalY)
     end
 end
 
-function P2:followParnter(_goalX, _goalY)
+function P2:followPartner(_goalX, _goalY)
     local goalX, goalY = Manny.prevX, Manny.prevY
 
     ---- MOVE FOLLOWING PLAYER ----

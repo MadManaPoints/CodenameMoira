@@ -10,7 +10,7 @@ local spriteSheet =
     maleIdle = gfx.imagetable.new("images/maleIdle/maleIdle"),
     maleWalk = gfx.imagetable.new("images/maleWalk/maleWalk"),
     malePole = gfx.image.new("images/malePole/fishingPole"),
-    log = gfx.image.new("images/log"),
+    log = gfx.image.new("images/newLog"),
     jump = gfx.imagetable.new("images/malePole/jump/fishpoleJump"),
     spray = gfx.imagetable.new("images/spray/spray"),
 }
@@ -90,11 +90,18 @@ local castPosition = -0.7
 local logIndex = 1
 local logDirections = { 3, 0, 0, 0, 3, 90, -3, 0, 0, 0, -3, 90 } -- temp
 
+--- MINIGAMES ---
+
+-- Minigame 1 --
+local logGame = true
+local minigame1 = true
+
 -- Bug Spray --
 local spray = nil
 local isSpraying = false
 local sprayDir = "down"
-local sprayTimer = Timer(0.7)
+sprayTimer = Timer(0.7)
+test = 0
 
 class('P1').extends(Player)
 
@@ -107,6 +114,10 @@ end
 
 function P1:update()
     P1.super.update(self)
+
+    if logGame then
+        self:logGame()
+    end
 end
 
 function P1:movement(_goalX, _goalY)
@@ -159,11 +170,12 @@ function P1:movement(_goalX, _goalY)
     local actualX, actualY, collisions, numberOfCollisions = self:moveWithCollisions(_goalX, _goalY)
 end
 
-function P1:followParnter(_goalX, _goalY)
+function P1:followPartner(_goalX, _goalY)
     local goalX, goalY = Tati.prevX, Tati.prevY
 
+    self:moveTo(Tati.prevX, Tati.prevY)
     ---- MOVE FOLLOWING PLAYER ----
-    local actualX, actualY, collisions, numberOfCollisions = self:moveWithCollisions(goalX, goalY)
+    --local actualX, actualY, collisions, numberOfCollisions = self:moveWithCollisions(goalX, goalY)
 end
 
 function P1:abilityManager()
@@ -338,31 +350,31 @@ function P1:sprayManager()
 
         local crank = pd.getCrankPosition()
         local change, acceleratedChange = pd.getCrankChange()
+        local cranking = change ~= 0 and (acceleratedChange > 2 or acceleratedChange < -2)
 
         -- Show spray sprite if player is moving crank
-        if change > 10 or change < -10 then
+        if cranking then
             if not spray:isVisible() then
                 spray:setUpdatesEnabled(true)
                 spray:setCollisionsEnabled(true)
                 spray:setVisible(true)
             end
 
-            if sprayTimer.startTimer then sprayTimer.startTimer = false end
-        elseif spray:isVisible() then
-            -- If player stops moving and spray is visible, start spray timer
-            if not sprayTimer.startTimer then
-                sprayTimer.targetTime = pd.getElapsedTime() + sprayTimer.totalTime
+            --if sprayTimer.startTimer then sprayTimer.startTimer = false end
+        else
+            if not sprayTimer.startTimer and spray:isVisible() then
+                -- If player stops moving and spray is visible, start spray timer
+                sprayTimer.targetTime = Delta + sprayTimer.totalTime
                 sprayTimer.startTimer = true
-            end
-
-            -- Turn off spray if player doesn't move crank before timer goes off
-            if sprayTimer.timeout then
-                spray:setVisible(false)
-                spray:setCollisionsEnabled(false)
-
-                -- Reset timer variables
-                sprayTimer.startTimer = false
-                sprayTimer.timeout = false
+            else
+                -- Turn off spray if player doesn't move crank before timer goes off
+                if sprayTimer.timeout then
+                    -- Reset timer variables
+                    sprayTimer.startTimer = false
+                    sprayTimer.timeout = false
+                    spray:setVisible(false)
+                    spray:setCollisionsEnabled(false)
+                end
             end
         end
     end
@@ -435,24 +447,30 @@ function P1:logFishing()
             -- Kazulo Ishiguro (British)
 
             if change > 30 and reeling then
-                if self:getRotation() ~= logDirections[logIndex + 2] then
-                    self:setRotation(pd.math.lerp(self:getRotation(), logDirections[logIndex + 2], 0.15))
+                if not minigame1 then
+                    if self:getRotation() ~= logDirections[logIndex + 2] then
+                        self:setRotation(pd.math.lerp(self:getRotation(), logDirections[logIndex + 2], 0.15))
+                    end
+                    goalX += logDirections[logIndex]
+                    goalY += logDirections[logIndex + 1]
+                else
+                    goalY -= 2.0
                 end
-                goalX += logDirections[logIndex]
-                goalY += logDirections[logIndex + 1]
             end
 
             local actualX, actualY, collisions, numberOfCollisions = self:moveWithCollisions(goalX, goalY)
 
-            for i = 1, #collisions do
-                local col = collisions[i]
-                local colSP = col.other
-                if not colSP.isTrigger then
-                    if not colSP.used then
-                        reeling = false
-                        --colSP.used = true
-                        colSP:setCollisionsEnabled(false)
-                        logIndex += 3
+            if not minigame1 then
+                for i = 1, #collisions do
+                    local col = collisions[i]
+                    local colSP = col.other
+                    if not colSP.isTrigger then
+                        if not colSP.used then
+                            logIndex += 3
+                            reeling = false
+                            --colSP.used = true
+                            colSP:setCollisionsEnabled(false)
+                        end
                     end
                 end
             end
@@ -494,6 +512,18 @@ function P1:abilityTwo()
     self:bugSpray()
 end
 
+function P1:logMinigame()
+    self.playerControl = false
+    self.onLog = true
+    self:setImage(spriteSheet.log)
+    logGame = true
+    self:setRotation(90)
+end
+
+function P1:logMinigameSwitch()
+    reeling = false
+end
+
 function P1:changeState(newState, xPos, minRange, maxRange)
     state = newState
     if state == 6 then
@@ -501,6 +531,15 @@ function P1:changeState(newState, xPos, minRange, maxRange)
         minClimbRange = minRange
         maxClimbRange = maxRange
     end
+end
+
+function P1:logGame()
+    --if not reeling then
+    local goalX, goalY = self.x, self.y
+    goalY += 0.6
+
+    local actualX, actualY, collisions, numberOfCollisions = self:moveWithCollisions(goalX, goalY)
+    --end
 end
 
 function P1:animationManager()
