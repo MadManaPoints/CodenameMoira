@@ -38,7 +38,13 @@ Delta = 0
 local startX, startY = 380, 100
 CurrentCheckpointX = startX
 CurrentCheckpointY = startY
-PlayerOneActive = false
+PlayerOneActive = true
+
+--- FIRST PROTOTYPE ---
+MinigameTrigger = false -- temp
+local minigameStart = false
+VictoryDictory = false
+DemoEnd = false
 
 local function initialize()
     local textImg = gfx.image.new(300, 20)
@@ -55,16 +61,16 @@ local function initialize()
     --local chopping = Chopping()
     TwoPlayers = false
     --Manny = P1(150, 30, true, true)
-    --Manny = P1(100, 100, true, true)
+    Manny = P1(100, 100, true, true)
     --Tati = P2(startX, startY, true, false)
 
     --local roomTest = Room("images/roomTest")
-    local firstRoom = 6
+    local firstRoom = 5
     RoomID = firstRoom
-    --local room1 = Room(firstRoom, "images/rooms/night1/room" .. tostring(firstRoom))
+    local room1 = Room(firstRoom, "images/rooms/night1/room" .. tostring(firstRoom))
 
     -- TEST MINIGAME --
-    GAME_MANAGER:startMinigame(Room(firstRoom, "images/rooms/night1/room" .. tostring(firstRoom)), 1)
+    --GAME_MANAGER:startMinigame(Room(firstRoom, "images/rooms/night1/room" .. tostring(firstRoom)), 1)
 
     --local co = coroutine.create(function() print("hi") end)
     --pd.ui.crankIndicator:draw()
@@ -97,6 +103,34 @@ function pd.update()
     --gfx.fillRect(0, 0, 80, 40)
     --gfx.drawText(tostring(test), 10, 10)
 
+    if MinigameTrigger and not minigameStart then
+        gfx.fillRect(0, 0, 400, 240)
+        gfx.drawText("Oh no! Manny is caught in the current.", 50, 50)
+        gfx.drawText("Guide Tati through the level to save him!", 30, 100)
+        gfx.drawText("Use the menu button to switch characters.", 30, 150)
+        gfx.drawText("Press A to start.", 250, 220)
+
+        if pd.buttonJustPressed('A') then
+            minigameStart = true
+            GAME_MANAGER:startMinigame(1)
+        end
+    end
+
+    if DemoEnd then
+        gfx.fillRect(0, 0, 400, 240)
+        if VictoryDictory then
+            gfx.drawText("Thank you for playing!", 120, 110)
+        else
+            gfx.drawText("Your partner got swept away!", 85, 100)
+            gfx.drawText("Press A to try again.", 120, 130)
+
+            -- Allow minigame reset if player loses
+            if pd.buttonJustPressed('A') then
+                DemoEnd = false
+                GAME_MANAGER:startMinigame(1)
+            end
+        end
+    end
     --P:drawGrid()
     --P:updatePath()
 end

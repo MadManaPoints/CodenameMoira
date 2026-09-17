@@ -117,6 +117,7 @@ end
 
 function P2:update()
     P2.super.update(self)
+    --print(self.onTrigger)
 end
 
 function P2:abilityManager()

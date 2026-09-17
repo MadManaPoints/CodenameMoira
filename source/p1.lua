@@ -93,8 +93,8 @@ local logDirections = { 3, 0, 0, 0, 3, 90, -3, 0, 0, 0, -3, 90 } -- temp
 --- MINIGAMES ---
 
 -- Minigame 1 --
-local logGame = true
-local minigame1 = true
+local logGame = false
+local minigame1 = false
 
 -- Bug Spray --
 local spray = nil
@@ -114,6 +114,8 @@ end
 
 function P1:update()
     P1.super.update(self)
+
+    --print(state)
 
     if logGame then
         self:logGame()
@@ -187,7 +189,7 @@ end
 
 function P1:climbManager()
     if self.ability1 then
-        if state ~= states.climbing and pd.buttonJustPressed("A") then
+        if state ~= states.climbing and pd.buttonJustPressed("A") and state ~= states.logPulling then
             if not self.onTrigger then return end
             if isSpraying then self:bugSpray() end
             local info = self.triggerInfo
@@ -235,7 +237,7 @@ function P1:climbManager()
 end
 
 function P1:swingManager()
-    if self.ability1 and pd.buttonJustPressed("A") and self.onTrigger and self.triggerInfo[4] and state ~= states.swinging then
+    if self.ability1 and pd.buttonJustPressed("A") and state ~= states.logPulling and self.onTrigger and self.triggerInfo[4] and state ~= states.swinging then
         self.anim = jumpAnim.firstPos
         self.playerControl = false
         state = states.swinging
@@ -381,7 +383,7 @@ function P1:sprayManager()
 end
 
 function P1:logFishing()
-    if self.onTrigger and self.triggerInfo[5] and not self.onLog then
+    if not minigame1 and self.onTrigger and self.triggerInfo ~= nil and self.triggerInfo[5] and not self.onLog then
         self.onLog = true; self.playerControl = false; self:setImage(spriteSheet.log); self:moveTo(
             self.triggerInfo[1],
             self.triggerInfo[2])
@@ -394,7 +396,7 @@ function P1:logFishing()
         --self.anim = jumpAnim.firstPos
         --self.playerControl = false
         state = states.logPulling
-    elseif state == states.logPulling and pd.buttonJustReleased("A") and not reeling then
+    elseif state == states.logPulling and pd.buttonJustReleased("A") and not reeling and not minigame1 then
         state = states.idle
     end
 
@@ -451,8 +453,10 @@ function P1:logFishing()
                     if self:getRotation() ~= logDirections[logIndex + 2] then
                         self:setRotation(pd.math.lerp(self:getRotation(), logDirections[logIndex + 2], 0.15))
                     end
-                    goalX += logDirections[logIndex]
-                    goalY += logDirections[logIndex + 1]
+                    if not MinigameTrigger then
+                        goalX += logDirections[logIndex]
+                        goalY += logDirections[logIndex + 1]
+                    end
                 else
                     goalY -= 2.0
                 end
@@ -513,9 +517,12 @@ function P1:abilityTwo()
 end
 
 function P1:logMinigame()
+    PlayerOneActive = false
+    state = states.logPulling
     self.playerControl = false
     self.onLog = true
     self:setImage(spriteSheet.log)
+    minigame1 = true
     logGame = true
     self:setRotation(90)
 end
@@ -564,6 +571,10 @@ end
 
 function P1:collisionResponse(other)
     --P1.super.collisionResponse(self, other)
+    if other:isa(Trigger) then
+        return 'overlap'
+    end
+
     if other:isa(Collider) then
         if other.isTrigger or (not self.playerControl and not self.onLog) or (other:isa(Water) and self.onLog) then
             return 'overlap'

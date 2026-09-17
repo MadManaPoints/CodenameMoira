@@ -53,7 +53,15 @@ Trackers =
                     }
                 },
                 ["room5"] = { id = 5, up = 3, down = nil, left = 6, right = nil },
-                ["room6"] = { id = 6, up = nil, down = nil, left = nil, right = nil },
+                ["room6"] = {
+                    id = 6,
+                    up = nil,
+                    down = nil,
+                    left = nil,
+                    right = nil,
+                    ["brambles"] = { false, false, false },
+                    ["enemies"] = { false, false, false }
+                },
             }
         }
     }
@@ -78,13 +86,13 @@ function Manager:switchScene(scene, x, y, isPlayerOne, currentDir, roomCheck)
     self:loadNewScene(x, y, isPlayerOne, currentDir, roomCheck)
 end
 
-function Manager:startMinigame(scene, minigameNum)
-    self.room = scene
-
+function Manager:startMinigame(minigameNum)
     local x1, y1, x2, y2
     if minigameNum == 1 then
         x1 = 370; y1 = 100
         x2 = 50; y2 = 30
+
+        self.room = Room(6, "images/rooms/night1/room6", false)
     end
     self:loadMinigame(x1, y1, x2, y2, minigameNum)
 end
@@ -106,6 +114,9 @@ end
 function Manager:loadMinigame(x1, y1, x2, y2, minigameNum)
     gfx.sprite.removeAll()
     self.room:add()
+
+    CurrentCheckpointX = x2
+    CurrentCheckpointY = y2
 
     Tati = P2(x2, y2, true, false)
     Manny = P1(x1, y1, true, true)

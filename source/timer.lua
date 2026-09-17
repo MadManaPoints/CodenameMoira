@@ -19,9 +19,6 @@ function Timer:update()
         return
     end
 
-    self.timeLeft = math.floor(pd.getElapsedTime() - self.targetTime)
-
-
     if pd.getElapsedTime() > self.targetTime and not self.timeout then
         self.timeout = true
         --self.targetTime = pd.getElapsedTime() + self.totalTime

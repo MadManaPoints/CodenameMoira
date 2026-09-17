@@ -22,7 +22,7 @@ swarmStart.endFrame = 6
 swarmIdle.startFrame = 7
 swarmIdle.endFrame = 9
 
-function Enemy:init(x, y, isSwarm, isMoving, id, ded)
+function Enemy:init(x, y, isSwarm, isMoving, verticalMovement, reverseDirection, id, ded)
     self:setCenter(0.5, 0.5)
     self:moveTo(x, y)
     self.startX = x
@@ -34,6 +34,8 @@ function Enemy:init(x, y, isSwarm, isMoving, id, ded)
         self:setImage(img)
         self:setCollideRect(15, 20, 18, 13)
     else
+        self.verticalMovement = verticalMovement
+        self.reverseDirection = reverseDirection
         self:setCollideRect(5, 3, 13, 18)
     end
     self.moving = isMoving
@@ -160,7 +162,21 @@ function Enemy:move()
     local goalX, goalY = self.x, self.y
 
     if self.swarm then
-        goalY = self.startY + math.sin(self.updateTime) * 26
+        -- Move swarm horizontally or vertically and set start direction
+        if self.verticalMovement then
+            if self.reverseDirection then
+                goalY = self.startY + math.sin(self.updateTime) * 26
+            else
+                goalY = self.startY + math.sin(self.updateTime) * 26
+            end
+        else
+            if self.reverseDirection then
+                goalX = self.startX - math.sin(self.updateTime) * 22
+            else
+                goalX = self.startX + math.sin(self.updateTime) * 22
+            end
+        end
+
         self.updateTime += self.moveSpeed
         local actualX, actualY, collisions, numberOfCollisions = self:moveWithCollisions(goalX, goalY)
     end
