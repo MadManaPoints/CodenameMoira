@@ -72,7 +72,7 @@ function Sword:update()
     end
 
     -- calculate spin based on crank speed
-    if acceleratedChange > 10 or acceleratedChange < -10 then
+    if (acceleratedChange > 10 or acceleratedChange < -10) and not PlayerOneActive then
         self.spin += spinStrength * Delta * 2.0
     end
 

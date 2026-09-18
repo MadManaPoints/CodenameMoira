@@ -1,4 +1,3 @@
---doc will show different coreLibs you can use
 import "CoreLibs/graphics"
 import "CoreLibs/sprites"
 import "CoreLibs/animation"
@@ -34,7 +33,7 @@ pd.startAccelerometer()
 
 GAME_MANAGER = Manager()
 Delta = 0
--- 380, 100
+
 local startX, startY = 380, 100
 CurrentCheckpointX = startX
 CurrentCheckpointY = startY

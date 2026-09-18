@@ -82,8 +82,8 @@ function Player:update()
 
     if not self.onLog then
         self:setImage(self.anim:image())
+        self:animationManager()
         if (PlayerOneActive and self.isPlayerOne) or (not PlayerOneActive and not self.isPlayerOne) then
-            self:animationManager()
             self:itemSelect()
         end
     end
