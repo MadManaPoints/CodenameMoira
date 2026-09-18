@@ -25,20 +25,25 @@ swarmIdle.endFrame = 9
 function Enemy:init(x, y, isSwarm, isMoving, verticalMovement, reverseDirection, id, ded)
     self:setCenter(0.5, 0.5)
     self:moveTo(x, y)
+
+    -- Checkpoint
     self.startX = x
     self.startY = y
+
+    -- check whether enemy is a swarm or monster
     self.swarm = isSwarm
     if not self.swarm then
-        self.chaseDistance = 80
+        self.chaseDistance = 80 -- max distance to chase player
         local img = gfx.image.new("images/monster")
         self:setImage(img)
         self:setCollideRect(15, 20, 18, 13)
     else
+        -- determine which direction to move swarm
         self.verticalMovement = verticalMovement
         self.reverseDirection = reverseDirection
         self:setCollideRect(5, 3, 13, 18)
     end
-    self.moving = isMoving
+    self.moving = isMoving -- some swarms stand still
     self.anim = swarmStart
     self.ded = ded
     self.id = id

@@ -1,9 +1,9 @@
 local pd <const> = playdate
 local gfx <const> = pd.graphics
 
-local delta = 0.0
 local spinRange = 10.0
 local spinSpeed = 3.0
+local test = 0
 
 Sword = {}
 
@@ -42,14 +42,14 @@ function Sword:init(x, y)
 end
 
 function Sword:update()
-    delta = pd.getElapsedTime()
-    pd.resetElapsedTime()
+    --Delta = pd.getElapsedTime()
+    --pd.resetElapsedTime()
 
     local crank = pd.getCrankPosition()
     local crankR = math.rad(crank)
     local change, acceleratedChange = pd.getCrankChange()
     -- the faster you turn the crank, the faster you spin
-    local spinStrength = acceleratedChange * 2 * delta
+    local spinStrength = acceleratedChange * 2 * Delta
 
     --print(change .. "  " .. acceleratedChange)
     --print(self.spin)
@@ -58,14 +58,14 @@ function Sword:update()
         -- balancing feedback loop to revert spin back to 0 over time
         -- for positive (clockwise) spin
         if self.spin > 0.1 then
-            self.spin -= delta * spinSpeed
+            self.spin -= spinSpeed * Delta
         elseif self.spin > 0 and self.spin < 0.1 then
             self.spin = 0
         end
 
         -- for negative (anticlockwise) spin
         if self.spin < -0.1 then
-            self.spin += delta * spinSpeed
+            self.spin += spinSpeed * Delta
         elseif self.spin > -0.1 and self.spin < 0 then
             self.spin = 0
         end
@@ -73,7 +73,7 @@ function Sword:update()
 
     -- calculate spin based on crank speed
     if acceleratedChange > 10 or acceleratedChange < -10 then
-        self.spin += spinStrength * delta * 2.0
+        self.spin += spinStrength * Delta * 2.0
     end
 
     -- clamp positive spin number

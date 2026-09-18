@@ -22,7 +22,6 @@ function Player:init(x, y, alone, isPlayerOne, currentDir, abilityOneEquipped)
     self.isPlayerOne = isPlayerOne
 
     if abilityOneEquipped ~= nil then
-        print(abilityOneEquipped)
         self.ability1 = abilityOneEquipped and true or false
         self.ability2 = abilityOneEquipped and true or false
     else
@@ -226,13 +225,17 @@ function Player:switchRooms(x, y)
             if r.id == RoomID then
                 self:roomCheck()
                 if r.id == 4 then
+                    Meanwhile = true
+                    self.playerControl = false
                     self.isPlayerOne = true
+                    PlayerOneActive = true
                     GAME_MANAGER:switchScene(Room(1, "images/rooms/night1/room1"), 380, 100,
                         self.isPlayerOne)
                     break
                 elseif r.id == 3 then
                     GAME_MANAGER:switchScene(Room(r.down, "images/rooms/night1/room" .. tostring(r.down), true), newX, 12,
                         self.isPlayerOne)
+                    break
                 else
                     GAME_MANAGER:switchScene(Room(r.down, "images/rooms/night1/room" .. tostring(r.down)), newX, 12,
                         self.isPlayerOne, self.currentDir, self:currentItemCheck())

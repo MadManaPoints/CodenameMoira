@@ -100,8 +100,7 @@ local minigame1 = false
 local spray = nil
 local isSpraying = false
 local sprayDir = "down"
-sprayTimer = Timer(0.7)
-test = 0
+local sprayTimer = Timer(0.7)
 
 class('P1').extends(Player)
 
@@ -271,7 +270,7 @@ function P1:swingManager()
             if not castTimer.startTimer then
                 -- start buffer timer to see if playdate remains in position
                 castTimer.startTimer = true
-                castTimer.targetTime = pd.getElapsedTime() + castTimer.totalTime
+                castTimer.targetTime = castTimer.totalTime
             end
 
             -- prevent action if playdate stays in wrong position too long
@@ -366,7 +365,7 @@ function P1:sprayManager()
         else
             if not sprayTimer.startTimer and spray:isVisible() then
                 -- If player stops moving and spray is visible, start spray timer
-                sprayTimer.targetTime = Delta + sprayTimer.totalTime
+                sprayTimer.targetTime = sprayTimer.totalTime
                 sprayTimer.startTimer = true
             else
                 -- Turn off spray if player doesn't move crank before timer goes off
@@ -423,7 +422,7 @@ function P1:logFishing()
                 if not castTimer.startTimer then
                     -- start buffer timer to see if playdate remains in position
                     castTimer.startTimer = true
-                    castTimer.targetTime = pd.getElapsedTime() + castTimer.totalTime
+                    castTimer.targetTime = castTimer.totalTime
                 end
 
                 -- prevent action if playdate stays in wrong position too long

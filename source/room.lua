@@ -3,8 +3,12 @@ local gfx <const> = pd.graphics
 
 Room = {}
 
-local backgrounds = gfx.imagetable.new("images/rooms/night1/room5Table/room5")
-local animatedRoom = gfx.animation.loop.new(200, backgrounds, true)
+local spriteSheet =
+{
+    waterway = gfx.imagetable.new("images/rooms/night1/room5Table/room5"),
+    minigame1 = gfx.imagetable.new("images/rooms/night1/room6Table/room6")
+}
+local animatedRoom = nil
 
 class('Room').extends(gfx.sprite)
 
@@ -14,6 +18,11 @@ function Room:init(roomNum, img, isAnimated)
     RoomID = roomNum
     self.roomNumber = RoomID
     if isAnimated then
+        if roomNum == 5 then
+            animatedRoom = gfx.animation.loop.new(200, spriteSheet.waterway, true)
+        else
+            animatedRoom = gfx.animation.loop.new(200, spriteSheet.minigame1, true)
+        end
         -- temp -- prototype has only one animated room for now --
         self.anim = animatedRoom
         self:setImage(self.anim:image())
@@ -112,9 +121,13 @@ function Room:updateColliders()
     end
 
     if RoomID == 4 then
-        local enemy1 = Enemy(38, 60, false, false, 1, Trackers.night.night1.rooms.room4.enemies.monster1[1])
-        local enemy2 = Enemy(62, 180, false, false, 2, Trackers.night.night1.rooms.room4.enemies.monster2[1])
-        local enemy3 = Enemy(213, 132, false, false, 3, Trackers.night.night1.rooms.room4.enemies.monster2[1])
+        local enemy1 = Enemy(38, 60, false, false, false, false, 1,
+            Trackers.night.night1.rooms.room4.enemies.monster1[1])
+        local enemy2 = Enemy(62, 180, false, false, false, false, 2,
+            Trackers.night.night1.rooms.room4.enemies.monster2[1])
+        local enemy3 = Enemy(213, 132, false, false, false, false, 3,
+            Trackers.night.night1.rooms.room4.enemies.monster3[1])
+
         local cliff1 = Collider(280, 65, 47, 49)
         local stump = Collider(291, 14, 24, 5)
         local stumpTrigger = Trigger(294, 23, 18, 4, 135, false, false, false)
@@ -128,6 +141,7 @@ function Room:updateColliders()
         local border8 = Collider(279, 163, 121, 5)
         local border9 = Collider(328, 109, 72, 5)
         local border10 = Collider(250, -5, 150, 5)
+        local border11 = Collider(-5, 0, 5, 240)
         local willow = WorldObject(113, 109, "images/worldObjects/willowTree.png", true)
     end
 
@@ -146,9 +160,9 @@ function Room:updateColliders()
 
     if RoomID == 6 then
         -- Breakable Objects --
-        local bramble1 = Breakable(68, 187, 1, Trackers.night.night1.rooms.room6.brambles[1])
-        local bramble2 = Breakable(68, 204, 2, Trackers.night.night1.rooms.room6.brambles[2])
-        local bramble3 = Breakable(170, 28, 3, Trackers.night.night1.rooms.room6.brambles[3])
+        local bramble1 = Breakable(68, 187)
+        local bramble2 = Breakable(68, 204)
+        local bramble3 = Breakable(170, 28)
 
         -- Enemies --
         local enemy1 = Enemy(88, 85, true, false, false)

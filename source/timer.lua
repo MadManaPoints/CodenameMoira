@@ -5,22 +5,20 @@ Timer = {}
 
 class('Timer').extends(gfx.sprite)
 
-function Timer:init(totalTime)
-    self.targetTime = pd.getElapsedTime() + totalTime
-    self.totalTime = totalTime
+function Timer:init(targetTime)
+    self.targetTime = targetTime
+    self.totalTime = targetTime
     self.startTimer = false
     self.timeout = false
-    self.timeLeft = self.targetTime
     self:add()
 end
 
 function Timer:update()
-    if not self.startTimer then
-        return
-    end
+    if not self.startTimer then return end
 
-    if pd.getElapsedTime() > self.targetTime and not self.timeout then
+    if self.targetTime > 0 then
+        self.targetTime -= Delta
+    elseif not self.timeout then
         self.timeout = true
-        --self.targetTime = pd.getElapsedTime() + self.totalTime
     end
 end

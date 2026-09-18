@@ -26,7 +26,9 @@ end
 function Breakable:update()
     if self.broken and self.anim.frame ~= self.lastFrame then
         -- Set specific bramble to broken for scene persistance
-        Trackers.night.night1.rooms["room" .. tostring(RoomID)].brambles[self.id] = true
+        if self.id ~= nil then -- nil is for minigames, when we want the brambles to reset
+            Trackers.night.night1.rooms["room" .. tostring(RoomID)].brambles[self.id] = true
+        end
         -- Change sprite to broken brambles
         self.anim.frame = self.lastFrame
         self:setImage(self.anim:image())

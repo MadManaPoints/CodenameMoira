@@ -311,6 +311,18 @@ function P2:logCanoe()
 
 end
 
+function P2:logMinigame()
+    sword = nil
+    swordEquipped = false
+    tornado = false
+
+    flyDir = { false, false, false, false }
+    flying = false
+    canDismount = true
+
+    speed = 3
+end
+
 function P2:animationManager()
     if state == states.sword then
         if sword.spin > 0 then

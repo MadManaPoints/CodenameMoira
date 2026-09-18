@@ -59,7 +59,7 @@ Trackers =
                     down = nil,
                     left = nil,
                     right = nil,
-                    ["brambles"] = { false, false, false },
+                    --["brambles"] = { false, false, false },
                     ["enemies"] = { false, false, false }
                 },
             }
@@ -92,7 +92,11 @@ function Manager:startMinigame(minigameNum)
         x1 = 370; y1 = 100
         x2 = 50; y2 = 30
 
-        self.room = Room(6, "images/rooms/night1/room6", false)
+        self.room = Room(6, "images/rooms/night1/room6Table/room6-table-1", true)
+    end
+
+    if Tati ~= nil then
+        Tati:roomCheck()
     end
     self:loadMinigame(x1, y1, x2, y2, minigameNum)
 end
@@ -101,9 +105,11 @@ function Manager:loadNewScene(x, y, isPlayerOne, currentDir, roomCheck)
     gfx.sprite.removeAll() -- clear sprites before drawing new scene
     self.room:add()        -- adds scene set as argument in transition
 
+    -- Update player checkpoint
     CurrentCheckpointX = x
     CurrentCheckpointY = y
 
+    -- Add current player to scene
     if not isPlayerOne then
         Tati = P2(x, y, true, false, currentDir, roomCheck)
     else
@@ -115,13 +121,17 @@ function Manager:loadMinigame(x1, y1, x2, y2, minigameNum)
     gfx.sprite.removeAll()
     self.room:add()
 
+    -- Update player checkpoint
     CurrentCheckpointX = x2
     CurrentCheckpointY = y2
 
-    Tati = P2(x2, y2, true, false)
+    -- Add both players to scene
+    Tati = P2(x2, y2, true, false, nil, true)
     Manny = P1(x1, y1, true, true)
 
     if minigameNum == 1 then
+        -- Reset all player variables for log minigame
         Manny:logMinigame()
+        Tati:logMinigame()
     end
 end

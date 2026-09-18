@@ -38,7 +38,8 @@ Delta = 0
 local startX, startY = 380, 100
 CurrentCheckpointX = startX
 CurrentCheckpointY = startY
-PlayerOneActive = true
+PlayerOneActive = false
+Meanwhile = false
 
 --- FIRST PROTOTYPE ---
 MinigameTrigger = false -- temp
@@ -61,11 +62,11 @@ local function initialize()
     --local chopping = Chopping()
     TwoPlayers = false
     --Manny = P1(150, 30, true, true)
-    Manny = P1(100, 100, true, true)
-    --Tati = P2(startX, startY, true, false)
+    --Manny = P1(startX, startY, true, true)
+    Tati = P2(startX, startY, true, false)
 
     --local roomTest = Room("images/roomTest")
-    local firstRoom = 5
+    local firstRoom = 1
     RoomID = firstRoom
     local room1 = Room(firstRoom, "images/rooms/night1/room" .. tostring(firstRoom))
 
@@ -80,6 +81,7 @@ local function initialize()
     menu:addMenuItem("Switch", function() ChangeActivePlayer() end)
 end
 
+local test = 0
 --local fishing = Fishing()
 
 --- **DEBUGGING** ---
@@ -91,7 +93,10 @@ initialize()
 function pd.update()
     gfx.clear()
     Delta = pd.getElapsedTime()
+    pd.resetElapsedTime()
+
     gfx.sprite.update()
+
     --if fishing.canFish then
     --    gfx.drawText("START", 50, 50)
     --end
@@ -102,6 +107,20 @@ function pd.update()
     --- **DEBUGGING** ---
     --gfx.fillRect(0, 0, 80, 40)
     --gfx.drawText(tostring(test), 10, 10)
+    if Meanwhile then
+        gfx.fillRect(0, 0, 400, 240)
+        gfx.drawText("Meanwhile...", 150, 110)
+
+        -- Temporary player transition
+        if Manny ~= nil and Manny.playerControl then
+            Manny.playerControl = false
+        end
+
+        if pd.buttonJustPressed('A') then
+            Meanwhile = false
+            Manny.playerControl = true
+        end
+    end
 
     if MinigameTrigger and not minigameStart then
         gfx.fillRect(0, 0, 400, 240)
