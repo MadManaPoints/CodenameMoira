@@ -5,7 +5,7 @@ WorldObject = {}
 
 class('WorldObject').extends(gfx.sprite)
 
-function WorldObject:init(x, y, img, hasCollision)
+function WorldObject:init(x, y, img, zIndex, hasCollision)
     self:moveTo(x, y)
     self:setZIndex(4)
     self.useDrawMode = hasCollision ~= nil and hasCollision
@@ -13,8 +13,9 @@ function WorldObject:init(x, y, img, hasCollision)
     self:setImage(sprite)
     if hasCollision then
         self:setCollideRect(50, 24, 40, 48)
-        self:setZIndex(10)
     end
+
+    self:setZIndex(zIndex)
     self:add()
 end
 

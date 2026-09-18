@@ -18,7 +18,8 @@ Trackers =
                     up = nil,
                     down = 3,
                     left = 2,
-                    right = nil
+                    right = nil,
+                    ["brambles"] = { false, false }
                 },
                 ["room2"] =
                 {

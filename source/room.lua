@@ -64,6 +64,14 @@ function Room:updateColliders()
         local cliff1 = Collider(121, 182, 278, 58)
         local border1 = Collider(400, 0, 5, 240)
         local border2 = Collider(0, 241, 38, 5)
+
+        local treePath1 = WorldObject(200, 120, "images/worldObjects/treePath1", 4)
+        local treePath2 = WorldObject(200, 120, "images/worldObjects/treePath2", 10)
+        local border4 = Collider(260, 20, 140, 52)
+        local border5 = Collider(260, 135, 140, 52)
+
+        local bramble1 = Breakable(260, 80, 1, Trackers.night.night1.rooms.room1.brambles[1])
+        local bramble2 = Breakable(260, 101, 2, Trackers.night.night1.rooms.room1.brambles[2])
     end
 
     if self.roomNumber == 2 then
@@ -142,7 +150,7 @@ function Room:updateColliders()
         local border9 = Collider(328, 109, 72, 5)
         local border10 = Collider(250, -5, 150, 5)
         local border11 = Collider(-5, 0, 5, 240)
-        local willow = WorldObject(113, 109, "images/worldObjects/willowTree.png", true)
+        local willow = WorldObject(113, 109, "images/worldObjects/willowTree.png", 10, true)
     end
 
     if RoomID == 5 then

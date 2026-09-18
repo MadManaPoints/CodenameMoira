@@ -215,7 +215,7 @@ function P2:followPartner(_goalX, _goalY)
     local actualX, actualY, collisions, numberOfCollisions = self:moveWithCollisions(goalX, goalY)
 end
 
-function Player:flyingManager()
+function P2:flyingManager()
     if flying then
         local gravityX, gravityY, gravityZ = pd.readAccelerometer()
 
@@ -258,7 +258,7 @@ function Player:flyingManager()
     end
 end
 
-function Player:fly()
+function P2:fly()
     if not canDismount or self.tornado then return end
 
     if swordEquipped then
@@ -266,6 +266,7 @@ function Player:fly()
     end
 
     if not flying then
+        --self:setCollideRect(5, 3, 13, 18)
         state = states.flying.right
         speed = 5
         flying = true
@@ -275,7 +276,7 @@ function Player:fly()
     if not self.ability2 then self.ability2 = true end
 end
 
-function Player:swordManager()
+function P2:swordManager()
     if not canDismount and not self.ded then return end
 
     --add sword if there's no sword in the scene
