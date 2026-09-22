@@ -3,13 +3,20 @@ local gfx <const> = pd.graphics
 
 Player = {}
 
+-- position to move sprite when entering new scene from each direction
+local enterLeft, enterRight = 6, 394
+local enterTop, enterBottom = 6, 234
+
+local canSwitch = false
+local switchTimer = Timer(.5)
 
 class('Player').extends(gfx.sprite)
 
 function Player:init(x, y, alone, isPlayerOne, currentDir, abilityOneEquipped)
     self:setCenter(0.5, 0.5)
     self:moveTo(x, y)
-    self:setCollideRect(5, 3, 13, 18)
+    --self:setCollideRect(5, 3, 13, 18) 24x24
+
     self.playerControl = true
 
     -- Movement --
@@ -59,10 +66,24 @@ function Player:init(x, y, alone, isPlayerOne, currentDir, abilityOneEquipped)
     self:setZIndex(5)
 
     self.abilityAdded = false
-    self:add()
+    self.roomEntered = false
 end
 
 function Player:update()
+    if not self.roomEntered then
+        self.roomEntered = true
+        local directionCheck = false
+        for i = 1, 4 do
+            if pd.buttonIsPressed(self.allDir[i]) then directionCheck = true end
+        end
+
+        if not directionCheck then
+            for i = 1, #self.heldDir do
+                table.remove(self.heldDir, i)
+            end
+        end
+    end
+
     if not self.abilityAdded then
         self.abilityAdded = true
         if self.ability1 then
@@ -193,8 +214,11 @@ function Player:switchRooms(x, y)
         for k, r in pairs(Trackers.night.night1.rooms) do
             if r.id == RoomID then
                 self:roomCheck()
-                GAME_MANAGER:switchScene(Room(r.left, "images/rooms/night1/room" .. tostring(r.left)), 388, y,
-                    self.isPlayerOne, self.currentDir, self:currentItemCheck())
+                GAME_MANAGER:switchScene
+                (
+                    Room(r.left, "images/rooms/night1/room" .. tostring(r.left)), enterRight, y,
+                    self.isPlayerOne, self.currentDir, self:currentItemCheck()
+                )
                 break
             end
         end
@@ -203,8 +227,11 @@ function Player:switchRooms(x, y)
         for k, r in pairs(Trackers.night.night1.rooms) do
             if r.id == RoomID then
                 self:roomCheck()
-                GAME_MANAGER:switchScene(Room(r.right, "images/rooms/night1/room" .. tostring(r.right)), 12, y,
-                    self.isPlayerOne, self.currentDir, self:currentItemCheck())
+                GAME_MANAGER:switchScene
+                (
+                    Room(r.right, "images/rooms/night1/room" .. tostring(r.right)), enterLeft, y,
+                    self.isPlayerOne, self.currentDir, self:currentItemCheck()
+                )
                 break
             end
         end
@@ -214,8 +241,11 @@ function Player:switchRooms(x, y)
         for k, r in pairs(Trackers.night.night1.rooms) do
             if r.id == RoomID then
                 self:roomCheck()
-                GAME_MANAGER:switchScene(Room(r.up, "images/rooms/night1/room" .. tostring(r.up)), newX, 228,
-                    self.isPlayerOne, self.currentDir, self:currentItemCheck())
+                GAME_MANAGER:switchScene
+                (
+                    Room(r.up, "images/rooms/night1/room" .. tostring(r.up)), newX, enterBottom,
+                    self.isPlayerOne, self.currentDir, self:currentItemCheck()
+                )
             end
         end
     end
@@ -229,16 +259,24 @@ function Player:switchRooms(x, y)
                     self.playerControl = false
                     self.isPlayerOne = true
                     PlayerOneActive = true
-                    GAME_MANAGER:switchScene(Room(1, "images/rooms/night1/room1"), 380, 100,
-                        self.isPlayerOne)
+                    GAME_MANAGER:switchScene
+                    (
+                        Room(1, "images/rooms/night1/room1"), 368, 100, self.isPlayerOne
+                    )
                     break
                 elseif r.id == 3 then
-                    GAME_MANAGER:switchScene(Room(r.down, "images/rooms/night1/room" .. tostring(r.down), true), newX, 12,
-                        self.isPlayerOne)
+                    GAME_MANAGER:switchScene
+                    (
+                        Room(r.down, "images/rooms/night1/room" .. tostring(r.down), true), newX, enterTop,
+                        self.isPlayerOne
+                    )
                     break
                 else
-                    GAME_MANAGER:switchScene(Room(r.down, "images/rooms/night1/room" .. tostring(r.down)), newX, 12,
-                        self.isPlayerOne, self.currentDir, self:currentItemCheck())
+                    GAME_MANAGER:switchScene
+                    (
+                        Room(r.down, "images/rooms/night1/room" .. tostring(r.down)), newX, enterTop,
+                        self.isPlayerOne, self.currentDir, self:currentItemCheck()
+                    )
                     break
                 end
             end

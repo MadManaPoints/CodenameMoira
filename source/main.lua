@@ -34,7 +34,7 @@ pd.startAccelerometer()
 GAME_MANAGER = Manager()
 Delta = 0
 
-local startX, startY = 380, 100
+local startX, startY = 368, 100
 CurrentCheckpointX = startX
 CurrentCheckpointY = startY
 PlayerOneActive = false

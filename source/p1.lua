@@ -8,7 +8,7 @@ local speed = 3
 local spriteSheet =
 {
     maleIdle = gfx.imagetable.new("images/maleIdle/maleIdle"),
-    maleWalk = gfx.imagetable.new("images/maleWalk/maleWalk"),
+    maleWalk = gfx.imagetable.new("images/players/p1/walk/walk"),
     malePole = gfx.image.new("images/malePole/fishingPole"),
     log = gfx.image.new("images/newLog"),
     jump = gfx.imagetable.new("images/malePole/jump/fishpoleJump"),
@@ -69,10 +69,11 @@ local states =
     spraying = 7,
     swinging = 8,
     pulling = 9,
-    logPulling = 10
+    logPulling = 10,
+    fishing = { left = 11, right = 12, front = 13, back = 14 }
 }
 
-local state = states.idle
+local state = states.fishing.left
 
 -- ABILITIES ---
 
@@ -107,8 +108,12 @@ class('P1').extends(Player)
 function P1:init(x, y, alone, isPlayerOne, currentDir)
     P1.super.init(self, x, y, alone, isPlayerOne, currentDir)
     self.swingTargetTracker = 0
+    --self:setCollideRect(17, 18, 13, 18) -- 48x48
 
-    self.anim = idleAnim -- set start animation
+    self.anim = walkAnim.left                   -- set start animation
+
+    self:setCollideRect(17, 18, 13, 18)         -- 48x48
+    self:add()
 end
 
 function P1:update()
@@ -213,7 +218,7 @@ function P1:climbManager()
             if self.y == minClimbRange then
                 if pd.buttonJustPressed("A") then
                     self.playerControl = true
-                    state = states.idle
+                    state = states.fishing.front
                 end
             end
 
@@ -228,7 +233,7 @@ function P1:climbManager()
             if self.y == maxClimbRange then
                 if pd.buttonJustPressed("A") then
                     self.playerControl = true
-                    state = states.idle
+                    state = states.fishing.front
                 end
             end
         end
@@ -241,7 +246,7 @@ function P1:swingManager()
         self.playerControl = false
         state = states.swinging
     elseif state == states.swinging and pd.buttonJustReleased("A") and not reeling then
-        state = states.idle
+        state = states.fishing.front
         self.playerControl = true
         canCast = false
     end
@@ -316,7 +321,7 @@ function P1:swingManager()
                         end
                         self:moveTo(swingAnim:currentValue())
                     else
-                        state = states.idle
+                        state = states.fishing.left
                         swingAnim = nil
                         isSwinging = false
                         self.triggerInfo = {}
@@ -396,7 +401,7 @@ function P1:logFishing()
         --self.playerControl = false
         state = states.logPulling
     elseif state == states.logPulling and pd.buttonJustReleased("A") and not reeling and not minigame1 then
-        state = states.idle
+        state = states.fishing.front
     end
 
     if state == states.logPulling then
@@ -496,7 +501,7 @@ function P1:bugSpray()
     if not isSpraying then
         isSpraying = true
     else
-        state = states.idle
+        state = states.fishing.front
         isSpraying = false
     end
 end
@@ -551,21 +556,22 @@ end
 function P1:animationManager()
     if state == states.swinging then
         --nada
-    elseif state == states.walking.left then
+    elseif state == states.walking.left or state == states.fishing.left then
         if self.anim ~= walkAnim.left then self.anim = walkAnim.left end
-    elseif state == states.walking.right then
+    elseif state == states.walking.right or state == states.fishing.right then
         if self.anim ~= walkAnim.right then self.anim = walkAnim.right end
-    elseif state == states.walking.front then
+    elseif state == states.walking.front or state == states.fishing.front then
         if self.anim ~= walkAnim.front then self.anim = walkAnim.front end
-    elseif state == states.walking.back or state == states.climbing then
+    elseif state == states.walking.back or state == states.climbing or state == states.fishing.back then
         if self.anim ~= walkAnim.back then self.anim = walkAnim.back end
     elseif state == states.idle then
+        print("?>?")
         if self.anim ~= idleAnim then self.anim = idleAnim end
     end
 end
 
 function P1:roomCheck()
-    if state == states.climbing then state = states.idle end
+    if state == states.climbing then state = states.fishing.front end
 end
 
 function P1:collisionResponse(other)

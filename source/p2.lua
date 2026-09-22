@@ -22,7 +22,7 @@ local spriteSheet =
 {
     femaleIdle = gfx.imagetable.new("images/femaleIdle/femaleIdle"),
     femaleWalk = gfx.imagetable.new("images/femaleWalk/femaleWalk"),
-    femaleFlying = gfx.imagetable.new("images/femaleFlying/femaleFlying"),
+    femaleFlying = gfx.imagetable.new("images/flying/flying"),
     log = gfx.image.new("images/log"),
     sword = gfx.imagetable.new("images/swingAttack/swingAttack"),
 }
@@ -111,8 +111,16 @@ class('P2').extends(Player)
 
 function P2:init(x, y, alone, isPlayerOne, currentDir, abilityOneEquipped)
     P2.super.init(self, x, y, alone, isPlayerOne, currentDir, abilityOneEquipped)
+    --self:setCollideRect(17, 12, 13, 18) -- 48x48
 
-    self.anim = idleAnim -- set start animation
+    if abilityOneEquipped or abilityOneEquipped == nil then
+        self.anim = swordAnim.idle
+    else
+        self.anim = flyAnim.left
+    end
+
+    self:setCollideRect(17, 12, 13, 18) -- 48x48
+    self:add()
 end
 
 function P2:update()
@@ -291,7 +299,6 @@ function P2:swordManager()
 
     -- turn sword on or off
     if state ~= states.sword then
-        self:setCollideRect(17, 12, 13, 18)
         state = states.sword
     end
 

@@ -161,7 +161,7 @@ function Room:updateColliders()
         local border5 = Collider(335, 212, 19, 16)
         local border6 = Collider(19, 196, 19, 16)
         local log = LogPole(174, 94, 20, 20, 0, false, false, true)
-        local exit = Exit(20, 60, 50, 50, 1)
+        local exit = Exit(30, 30, 50, 20, 1)
         --local log1 = WorldObject(174, 94, "images/worldObjects/log")
         --local exit = Collider(35, 32, 40, 30)
     end
