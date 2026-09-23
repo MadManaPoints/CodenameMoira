@@ -172,6 +172,8 @@ function Room:updateColliders()
         local bramble2 = Breakable(68, 204)
         local bramble3 = Breakable(170, 28)
 
+        local UI = CharacterSwitchUI()
+
         -- Enemies --
         local enemy1 = Enemy(88, 85, true, false, false)
         local enemy2 = Enemy(268, 70, true, true, false, false)

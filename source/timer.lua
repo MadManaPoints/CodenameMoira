@@ -14,11 +14,13 @@ function Timer:init(targetTime)
 end
 
 function Timer:update()
-    if not self.startTimer then return end
+    if self.startTimer then
+        --print("?>")
 
-    if self.targetTime > 0 then
-        self.targetTime -= Delta
-    elseif not self.timeout then
-        self.timeout = true
+        if self.targetTime > 0 then
+            self.targetTime -= Delta
+        elseif not self.timeout then
+            self.timeout = true
+        end
     end
 end

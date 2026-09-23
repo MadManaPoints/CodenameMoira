@@ -10,6 +10,9 @@ local enterTop, enterBottom = 6, 234
 local canSwitch = false
 local switchTimer = Timer(.5)
 
+local newSwitchTimer = nil
+
+
 class('Player').extends(gfx.sprite)
 
 function Player:init(x, y, alone, isPlayerOne, currentDir, abilityOneEquipped)
@@ -25,6 +28,7 @@ function Player:init(x, y, alone, isPlayerOne, currentDir, abilityOneEquipped)
     self.heldDir = {}
     -- Add current direction if switching screens
     if self.currentDir ~= nil then table.insert(self.heldDir, self.currentDir) end
+    self.halt = false
 
     self.isPlayerOne = isPlayerOne
 
@@ -111,6 +115,10 @@ function Player:update()
 
     if not self.following then
         if self.alone then
+            if RoomID == 6 and (PlayerOneActive and self.isPlayerOne) or (not PlayerOneActive and not self.isPlayerOne) then
+                self:switchManager()
+            end
+
             if (PlayerOneActive and self.isPlayerOne) or (not PlayerOneActive and not self.isPlayerOne) then
                 self:abilityManager()
             end
@@ -167,11 +175,60 @@ function Player:animationManager()
 
 end
 
+function Player:switchManager()
+    if pd.buttonJustPressed("B") and not canSwitch then
+        local function switchTimerUp()
+            canSwitch = true -- callback for when timer ends
+        end
+
+        newSwitchTimer = pd.timer.new(500, switchTimerUp) -- create timer with .5 second duration
+    end
+
+    if canSwitch and not Switching then
+        if not CharacterUIActive then CharacterUIActive = true end
+    end
+    if canSwitch then
+        self.playerControl = false
+        Manny.halt = true
+    end
+
+    -- NOTE: I'm sure there's a better way to do this--
+    if canSwitch and (pd.buttonJustPressed("Left") or pd.buttonJustPressed("Right")
+            or pd.buttonJustPressed("Up") or pd.buttonJustPressed("Down")) and not PlayerOneActive and not Switching then
+        Switching = true
+
+        ChangeActivePlayer()
+    elseif canSwitch and (pd.buttonJustPressed("Left") or pd.buttonJustPressed("Right")
+            or pd.buttonJustPressed("Up") or pd.buttonJustPressed("Down")) and PlayerOneActive and not Switching then
+        Switching = true
+        ChangeActivePlayer()
+    end
+
+    if pd.buttonJustReleased("B") then
+        for i = 1, #self.heldDir do
+            table.remove(self.heldDir, i)
+        end
+
+        if not canSwitch then
+            newSwitchTimer:remove() -- remove timer if player released B button before callback
+        end
+
+        if canSwitch then
+            canSwitch = false -- prevent switching upon release
+        end
+
+        if CharacterUIActive then CharacterUIActive = false end
+
+        if not self.onLog and not self.playerControl then self.playerControl = true end
+        if Manny.halt then Manny.halt = false end
+    end
+end
+
 function Player:itemSelect()
     if self.ability2 and pd.buttonJustPressed("A") then
         self:abilityOne()
     end
-    if self.ability1 and pd.buttonJustPressed("B") then
+    if self.ability1 and pd.buttonJustReleased("B") and not canSwitch then
         self:abilityTwo()
     end
 end

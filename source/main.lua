@@ -18,6 +18,7 @@ import "p2"
 import "breakable"
 import "waterfall"
 import "worldobject"
+import "characterSwitchUI"
 import "room"
 import "pathfinding"
 import "enemy"
@@ -39,9 +40,11 @@ CurrentCheckpointX = startX
 CurrentCheckpointY = startY
 PlayerOneActive = false
 Meanwhile = false
+Switching = false
+CharacterUIActive = false
 
 --- FIRST PROTOTYPE ---
-MinigameTrigger = false -- temp
+MinigameTrigger = true -- temp
 local minigameStart = false
 VictoryDictory = false
 DemoEnd = false
@@ -62,22 +65,19 @@ local function initialize()
     TwoPlayers = false
     --Manny = P1(150, 30, true, true)
     --Manny = P1(startX, startY, true, true)
-    Tati = P2(startX, startY, true, false)
+    --Tati = P2(startX, startY, true, false)
 
     --local roomTest = Room("images/roomTest")
-    local firstRoom = 1
+    local firstRoom = 6
     RoomID = firstRoom
-    local room1 = Room(firstRoom, "images/rooms/night1/room" .. tostring(firstRoom))
-
-    -- TEST MINIGAME --
-    --GAME_MANAGER:startMinigame(Room(firstRoom, "images/rooms/night1/room" .. tostring(firstRoom)), 1)
+    --local room1 = Room(firstRoom, "images/rooms/night1/room" .. tostring(firstRoom))
 
     --local co = coroutine.create(function() print("hi") end)
     --pd.ui.crankIndicator:draw()
     P = Pathfinding()
 
-    local menu = playdate.getSystemMenu()
-    menu:addMenuItem("Switch", function() ChangeActivePlayer() end)
+    --local menu = playdate.getSystemMenu()
+    --menu:addMenuItem("Switch", function() ChangeActivePlayer() end)
 end
 
 local test = 0
@@ -95,6 +95,7 @@ function pd.update()
     pd.resetElapsedTime()
 
     gfx.sprite.update()
+    pd.timer.updateTimers();
 
     --if fishing.canFish then
     --    gfx.drawText("START", 50, 50)
@@ -124,8 +125,9 @@ function pd.update()
     if MinigameTrigger and not minigameStart then
         gfx.fillRect(0, 0, 400, 240)
         gfx.drawText("Oh no! Manny is caught in the current.", 50, 50)
-        gfx.drawText("Guide Tati through the level to save him!", 30, 100)
-        gfx.drawText("Use the menu button to switch characters.", 30, 150)
+        gfx.drawText("Guide Tati through the level to save him!", 45, 80)
+        gfx.drawText("Hold B to bring up character menu.", 60, 140)
+        gfx.drawText("Press Left or Down to switch character.", 43, 170)
         gfx.drawText("Press A to start.", 250, 220)
 
         if pd.buttonJustPressed('A') then
@@ -139,7 +141,7 @@ function pd.update()
         if VictoryDictory then
             gfx.drawText("Thank you for playing!", 120, 110)
         else
-            gfx.drawText("Your partner got swept away!", 85, 100)
+            gfx.drawText("Manny got swept away!", 85, 100)
             gfx.drawText("Press A to try again.", 120, 130)
 
             -- Allow minigame reset if player loses

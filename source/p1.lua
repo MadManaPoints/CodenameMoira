@@ -94,8 +94,8 @@ local logDirections = { 3, 0, 0, 0, 3, 90, -3, 0, 0, 0, -3, 90 } -- temp
 --- MINIGAMES ---
 
 -- Minigame 1 --
-local logGame = false
-local minigame1 = false
+local logGame = true
+local minigame1 = true
 
 -- Bug Spray --
 local spray = nil
@@ -110,9 +110,9 @@ function P1:init(x, y, alone, isPlayerOne, currentDir)
     self.swingTargetTracker = 0
     --self:setCollideRect(17, 18, 13, 18) -- 48x48
 
-    self.anim = walkAnim.left                   -- set start animation
+    self.anim = walkAnim.left           -- set start animation
 
-    self:setCollideRect(17, 18, 13, 18)         -- 48x48
+    self:setCollideRect(17, 18, 13, 18) -- 48x48
     self:add()
 end
 
@@ -120,8 +120,7 @@ function P1:update()
     P1.super.update(self)
 
     --print(state)
-
-    if logGame then
+    if logGame and not self.halt then
         self:logGame()
     end
 end
