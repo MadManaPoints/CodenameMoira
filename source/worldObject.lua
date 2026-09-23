@@ -47,7 +47,16 @@ end
 function SparkleParticle:update()
     -- Add particle system over currently seletcted player while in character switch UI
     if CharacterUIActive then
-        if not self:isVisible() then self:setVisible(true) end
+        if not self:isVisible() then
+            self:setVisible(true)
+
+            -- Update position when reentering menu
+            if PlayerOneActive then
+                self:moveTo(Manny.x, Manny.y)
+            else
+                self:moveTo(Tati.x, Tati.y)
+            end
+        end
 
         self:setImage(self.anim:image()) -- loop animation
 
