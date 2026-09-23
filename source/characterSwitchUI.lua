@@ -10,13 +10,14 @@ local updateScale = 0
 
 class('CharacterSwitchUI').extends(gfx.sprite)
 
-local p1, p2
+local p1, p2, sp
 local p1Anim, p2Anim
 
 function CharacterSwitchUI:init()
     -- Instantiate player cards
     p1 = WorldObject(inactiveX, inactiveY, "images/characterCards/characterCard1", 10)
     p2 = WorldObject(activeX, activeY, "images/characterCards/characterCard2", 11)
+    sp = SparkleParticle(100, 100)
     -- Set to invisible at start
     p1:setVisible(false)
     p2:setVisible(false)

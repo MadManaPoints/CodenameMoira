@@ -150,7 +150,7 @@ function Room:updateColliders()
         local border9 = Collider(328, 109, 72, 5)
         local border10 = Collider(250, -5, 150, 5)
         local border11 = Collider(-5, 0, 5, 240)
-        local willow = WorldObject(113, 109, "images/worldObjects/willowTree.png", 10, true)
+        local willow = WorldObject(113, 109, "images/worldObjects/willowTree.png", 10, false, true)
     end
 
     if RoomID == 5 then
