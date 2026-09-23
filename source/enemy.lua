@@ -13,14 +13,6 @@ local spriteSheet =
 local w = 16
 local h = 10
 
-local swarmStart = gfx.animation.loop.new(200, spriteSheet.swarm, false)
-local swarmIdle = gfx.animation.loop.new(200, spriteSheet.swarm, true)
-
-swarmStart.startFrame = 1
-swarmStart.endFrame = 6
-
-swarmIdle.startFrame = 7
-swarmIdle.endFrame = 9
 
 function Enemy:init(x, y, isSwarm, isMoving, verticalMovement, reverseDirection, id, ded)
     self:setCenter(0.5, 0.5)
@@ -32,19 +24,30 @@ function Enemy:init(x, y, isSwarm, isMoving, verticalMovement, reverseDirection,
 
     -- check whether enemy is a swarm or monster
     self.swarm = isSwarm
+
     if not self.swarm then
         self.chaseDistance = 80 -- max distance to chase player
         local img = gfx.image.new("images/monster")
         self:setImage(img)
         self:setCollideRect(15, 20, 18, 13)
     else
+        -- Create swarm animations
+        self.swarmStart = gfx.animation.loop.new(140, spriteSheet.swarm, false)
+        self.swarmIdle = gfx.animation.loop.new(200, spriteSheet.swarm, true)
+
+        self.swarmStart.startFrame = 1
+        self.swarmStart.endFrame = 6
+
+        self.swarmIdle.startFrame = 7
+        self.swarmIdle.endFrame = 9
+
         -- determine which direction to move swarm
         self.verticalMovement = verticalMovement
         self.reverseDirection = reverseDirection
         self:setCollideRect(5, 3, 13, 18)
     end
     self.moving = isMoving -- some swarms stand still
-    self.anim = swarmStart
+    self.anim = self.swarmStart
     self.ded = ded
     self.id = id
     self.updateTime = 0
@@ -80,7 +83,7 @@ end
 
 function Enemy:update()
     if self.swarm then
-        if self.anim == swarmStart and self.anim.frame == swarmStart.endFrame then self.anim = swarmIdle end
+        if self.anim == self.swarmStart and self.anim.frame == self.swarmStart.endFrame then self.anim = self.swarmIdle end
         self:setImage(self.anim:image())
 
         if self.moving then

@@ -8,7 +8,7 @@ local enterLeft, enterRight = 6, 394
 local enterTop, enterBottom = 6, 234
 
 local canSwitch = false
-local switchTimer = Timer(.5)
+local switchTimer = Timer(.25)
 
 local newSwitchTimer = nil
 
@@ -192,15 +192,11 @@ function Player:switchManager()
         Manny.halt = true
     end
 
-    -- NOTE: I'm sure there's a better way to do this--
+    -- While character icons are active, allow player to press any d-pad button to switch between them
     if canSwitch and (pd.buttonJustPressed("Left") or pd.buttonJustPressed("Right")
-            or pd.buttonJustPressed("Up") or pd.buttonJustPressed("Down")) and not PlayerOneActive and not Switching then
+            or pd.buttonJustPressed("Up") or pd.buttonJustPressed("Down")) and not Switching then
         Switching = true
 
-        ChangeActivePlayer()
-    elseif canSwitch and (pd.buttonJustPressed("Left") or pd.buttonJustPressed("Right")
-            or pd.buttonJustPressed("Up") or pd.buttonJustPressed("Down")) and PlayerOneActive and not Switching then
-        Switching = true
         ChangeActivePlayer()
     end
 
