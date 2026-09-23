@@ -227,7 +227,7 @@ function P2:flyingManager()
     if flying then
         local gravityX, gravityY, gravityZ = pd.readAccelerometer()
 
-        if gravityX > -0.2 and gravityX < 0.2 and gravityY > 0.18 and gravityY < 0.7 then
+        if gravityX > -0.2 and gravityX < 0.2 and gravityY > 0.18 and gravityY < 0.4 then
             for i = 1, #flyDir do
                 if flyDir[i] then flyDir[i] = false end
             end
@@ -239,7 +239,7 @@ function P2:flyingManager()
                 if flyDir[i] then flyDir[i] = false end
             end
             flyDir[1] = true
-        elseif gravityY >= 0.5 and not flyDir[2] then
+        elseif gravityY >= 0.4 and not flyDir[2] then
             for i = 1, #flyDir do
                 if flyDir[i] then flyDir[i] = false end
             end
