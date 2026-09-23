@@ -5,7 +5,6 @@ CharacterSwitchUI = {}
 
 local activeX, activeY = 12, 228
 local inactiveX, inactiveY = 20, 220
-local moveSpeed = 5;
 local co = nil
 local updateScale = 0
 
@@ -15,36 +14,43 @@ local p1, p2
 local p1Anim, p2Anim
 
 function CharacterSwitchUI:init()
+    -- Instantiate player cards
     p1 = WorldObject(inactiveX, inactiveY, "images/characterCards/characterCard1", 10)
     p2 = WorldObject(activeX, activeY, "images/characterCards/characterCard2", 11)
+    -- Set to invisible at start
     p1:setVisible(false)
     p2:setVisible(false)
     self:add()
 end
 
 function CharacterSwitchUI:update()
-    if CharacterUIActive then
+    if CharacterUIActive then -- CharacterSwitchUI is true when player holds B for .5 seconds
+        -- Make player cards visible
         if not p1:isVisible() then p1:setVisible(true) end
         if not p2:isVisible() then p2:setVisible(true) end
 
-        updateScale += 0.3
-        local updateSize = 1 + math.sin(updateScale) * 0.1
+        updateScale += 0.3                                 -- Changing number over time for sine update
+        local updateSize = 1 + math.sin(updateScale) * 0.1 -- oscillation for character card size
+
+        -- Update character card sizes
         if p1:getZIndex() == 11 then
             p1:setScale(updateSize, updateSize)
         elseif p2:getZIndex() == 11 then
             p2:setScale(updateSize, updateSize)
         end
-    elseif not Switching then
+    elseif not Switching then -- If player releases B, wait until card switch is complete before setting sprites to invisible
         if p1:isVisible() then p1:setVisible(false) end
         if p2:isVisible() then p2:setVisible(false) end
         return
     end
+
+    -- Update front card based on which player is active
     if not PlayerOneActive and p1:getZIndex() ~= 10 then
         p1:setZIndex(10)
         p2:setZIndex(11)
-        p2:setScale(1.2, 1.2)
+        p2:setScale(1.2, 1.2)            -- Make active card bigger during switch animation
 
-        CharacterSwitchUI:changePlaces()
+        CharacterSwitchUI:changePlaces() -- coroutine to swap card positions
     elseif PlayerOneActive and p2:getZIndex() ~= 10 then
         p2:setZIndex(10)
         p1:setZIndex(11)
@@ -54,15 +60,18 @@ function CharacterSwitchUI:update()
     end
 
     if co ~= nil then
-        coroutine.resume(co)
+        coroutine.resume(co) -- Update coroutine if it exists
     end
 end
 
 function CharacterSwitchUI:changePlaces()
-    local function _f()
+    -- Get new character card positions and update accordingly
+    local function movePosition()
+        -- Set duration of character card switch animation
         local elapsed = 0
         local duration = 0.25
 
+        -- Get new positions for each player card based on which one is active
         local p1StartX, p1StartY = p1.x, p1.y
         local p1GoalX, p1GoalY
 
@@ -81,6 +90,7 @@ function CharacterSwitchUI:changePlaces()
             p2GoalX, p2GoalY = activeX, activeY
         end
 
+        -- Move cards into new positions
         while elapsed < duration do
             local time = elapsed / duration
             p1:moveTo(pd.math.lerp(p1StartX, p1GoalX, time), pd.math.lerp(p1StartY, p1GoalY, time))
@@ -89,13 +99,14 @@ function CharacterSwitchUI:changePlaces()
             coroutine.yield()
         end
 
+        -- Snap position and scale to ensure correct position
         p1:moveTo(p1GoalX, p1GoalY)
         p2:moveTo(p2GoalX, p2GoalY)
-
         p1:setScale(1, 1)
         p2:setScale(1, 1)
-        Switching = false
+
+        Switching = false -- Let game know cards are in position
     end
 
-    co = coroutine.create(_f)
+    co = coroutine.create(movePosition) -- Creates the above coroutine
 end

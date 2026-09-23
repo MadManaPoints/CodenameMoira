@@ -127,7 +127,7 @@ function pd.update()
         gfx.drawText("Oh no! Manny is caught in the current.", 50, 50)
         gfx.drawText("Guide Tati through the level to save him!", 45, 80)
         gfx.drawText("Hold B to bring up character menu.", 60, 140)
-        gfx.drawText("Press Left or Down to switch character.", 43, 170)
+        gfx.drawText("Press any d-pad button to switch characters.", 25, 170)
         gfx.drawText("Press A to start.", 250, 220)
 
         if pd.buttonJustPressed('A') then
@@ -141,7 +141,7 @@ function pd.update()
         if VictoryDictory then
             gfx.drawText("Thank you for playing!", 120, 110)
         else
-            gfx.drawText("Manny got swept away!", 85, 100)
+            gfx.drawText("Manny got swept away!", 110, 100)
             gfx.drawText("Press A to try again.", 120, 130)
 
             -- Allow minigame reset if player loses
