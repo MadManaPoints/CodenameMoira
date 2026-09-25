@@ -115,12 +115,14 @@ function pd.update()
     end
 
     if Manny ~= nil and not Manny.onLog and Manny.isClimbing and Manny.y ~= Manny.maxClimbRange then
+        --print("YERRRB")
         pd.ui.crankIndicator.clockwise = false
         pd.ui.crankIndicator:draw()
     end
 
-    if Manny ~= nil and Manny.onLog then
+    if Manny ~= nil and ((Manny.onLog and Manny.reeling) or (not Manny.onLog and Manny.reeling)) and not MinigameTrigger then
         pd.ui.crankIndicator.clockwise = true
+        pd.ui.crankIndicator:draw()
     end
 
     --if fishing.canFish then
@@ -133,6 +135,7 @@ function pd.update()
     --- **DEBUGGING** ---
     --gfx.fillRect(0, 0, 80, 40)
     --gfx.drawText(tostring(test), 10, 10)
+
     if Meanwhile then
         gfx.fillRect(0, 0, 400, 240)
         gfx.drawText("Meanwhile...", 150, 110)
@@ -190,6 +193,7 @@ function pd.update()
         gfx.setColor(gfx.kColorBlack)
         gfx.setLineWidth(1.5)
         gfx.drawLine(Manny.x + 2, Manny.y - 10, climbX, climbY)
+        gfx.setColor(gfx.kColorWhite)
     end
 end
 

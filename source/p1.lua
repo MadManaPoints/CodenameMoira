@@ -84,7 +84,6 @@ RopeHookX, RopeHookY = 0, 0
 local stumpX = 0
 local isSwinging = false
 local castTimer = Timer(0.5)
-local reeling = false
 local canCast = false
 local reelCastPosition = -0.7
 local reelCastThreshold = 1.5
@@ -110,6 +109,7 @@ class('P1').extends(Player)
 function P1:init(x, y, alone, isPlayerOne, currentDir)
     P1.super.init(self, x, y, alone, isPlayerOne, currentDir)
     self.swingTargetTracker = 0
+    self.reeling = false
     self.isClimbing = false
     self.minClimbRange = 0
     self.maxClimbRange = 0
@@ -123,6 +123,8 @@ end
 
 function P1:update()
     P1.super.update(self)
+
+    print(self.isClimbing)
 
     --print(state)
     if logGame and not self.halt then
@@ -202,6 +204,7 @@ function P1:climbManager()
             if not self.onTrigger then return end
             if isSpraying then self:bugSpray() end
             local info = self.triggerInfo
+            if info[4] or info[5] then return end -- return if it is a jump or grapple
             self.heldDir = {}
             self.currentDir = nil
             self.playerControl = false
@@ -255,13 +258,13 @@ function P1:swingManager()
         self.anim = jumpAnim.firstPos
         self.playerControl = false
         state = states.swinging
-    elseif state == states.swinging and pd.buttonJustReleased("A") and not reeling then
+    elseif state == states.swinging and pd.buttonJustReleased("A") and not self.reeling then
         state = states.fishing.front
         self.playerControl = true
         canCast = false
     end
 
-    if state == states.swinging and not reeling then
+    if state == states.swinging and not self.reeling then
         local gravityX, gravityY, gravityZ = pd.readAccelerometer()
         local castStrength = math.abs(gravityZ - prevZ)
 
@@ -273,7 +276,6 @@ function P1:swingManager()
                 self.anim = jumpAnim.secondPos
                 print("SEND IT, DAWG")
             end
-
 
             -- reset timer for buffer check
             if castTimer.startTimer then
@@ -305,10 +307,10 @@ function P1:swingManager()
             --jumpAnim.whoosh.paused = false
             jumpAnim.whoosh.frame = 1
             self.anim = jumpAnim.whoosh
-            reeling = true
+            self.reeling = true
         end
     elseif state == states.swinging then
-        if reeling then
+        if self.reeling then
             local ticksPerRevolution = 1
             local crankTicks = playdate.getCrankTicks(ticksPerRevolution)
 
@@ -334,12 +336,12 @@ function P1:swingManager()
                         state = states.fishing.left
                         swingAnim = nil
                         isSwinging = false
-                        self.triggerInfo = {}
                         self.playerControl = true
                         canCast = false
-                        reeling = false
+                        self.reeling = false
                         self:setScale(1, 1)
                         self.swingTargetTracker = 0
+                        self.triggerInfo = nil
                     end
                 end
             end
@@ -410,12 +412,12 @@ function P1:logFishing()
         --self.anim = jumpAnim.firstPos
         --self.playerControl = false
         state = states.logPulling
-    elseif state == states.logPulling and pd.buttonJustReleased("A") and not reeling and not minigame1 then
+    elseif state == states.logPulling and pd.buttonJustReleased("A") and not self.reeling and not minigame1 then
         state = states.fishing.front
     end
 
     if state == states.logPulling then
-        if not reeling and pd.buttonIsPressed("A") then
+        if not self.reeling and pd.buttonIsPressed("A") then
             local gravityX, gravityY, gravityZ = pd.readAccelerometer()
             local castStrength = math.abs(gravityZ - prevZ)
 
@@ -453,16 +455,16 @@ function P1:logFishing()
             -- if current GravZ and previous GravZ are distant enough, reel has been cast into water
             if canCast and castStrength > reelCastThreshold then
                 print("REEL BABY")
-                reeling = true
+                self.reeling = true
                 canCast = false
             end
-        elseif reeling then
+        elseif self.reeling then
             local change, acceleratedChange = pd.getCrankChange()
             local goalX, goalY = self.x, self.y
             -- Yoko Ogawa short story collection (author of The Housekeeper and the Professor)
             -- Kazulo Ishiguro (British)
 
-            if change > 30 and reeling then
+            if change > 30 and self.reeling then
                 if not minigame1 then
                     if self:getRotation() ~= logDirections[logIndex + 2] then
                         self:setRotation(pd.math.lerp(self:getRotation(), logDirections[logIndex + 2], 0.15))
@@ -485,7 +487,7 @@ function P1:logFishing()
                     if not colSP.isTrigger then
                         if not colSP.used then
                             logIndex += 3
-                            reeling = false
+                            self.reeling = false
                             --colSP.used = true
                             colSP:setCollisionsEnabled(false)
                         end
@@ -542,7 +544,7 @@ function P1:logMinigame()
 end
 
 function P1:logMinigameSwitch()
-    reeling = false
+    self.reeling = false
 end
 
 function P1:changeState(newState, xPos, minRange, maxRange)
@@ -555,7 +557,7 @@ function P1:changeState(newState, xPos, minRange, maxRange)
 end
 
 function P1:logGame()
-    --if not reeling then
+    --if not self.reeling then
     local goalX, goalY = self.x, self.y
     goalY += 0.6
 
