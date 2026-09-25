@@ -79,7 +79,9 @@ local state = states.fishing.left
 
 -- Fishing Pole --
 local canUsePole = false
-local stumpX, minClimbRange, maxClimbRange = 0, 0, 0
+local rope = nil
+RopeHookX, RopeHookY = 0, 0
+local stumpX = 0
 local isSwinging = false
 local castTimer = Timer(0.5)
 local reeling = false
@@ -94,8 +96,8 @@ local logDirections = { 3, 0, 0, 0, 3, 90, -3, 0, 0, 0, -3, 90 } -- temp
 --- MINIGAMES ---
 
 -- Minigame 1 --
-local logGame = true
-local minigame1 = true
+local logGame = false
+local minigame1 = false
 
 -- Bug Spray --
 local spray = nil
@@ -108,6 +110,9 @@ class('P1').extends(Player)
 function P1:init(x, y, alone, isPlayerOne, currentDir)
     P1.super.init(self, x, y, alone, isPlayerOne, currentDir)
     self.swingTargetTracker = 0
+    self.isClimbing = false
+    self.minClimbRange = 0
+    self.maxClimbRange = 0
     --self:setCollideRect(17, 18, 13, 18) -- 48x48
 
     self.anim = walkAnim.left           -- set start animation
@@ -191,6 +196,7 @@ function P1:abilityManager()
 end
 
 function P1:climbManager()
+    if self.isClimbing and state ~= states.climbing then self.isClimbing = false end
     if self.ability1 then
         if state ~= states.climbing and pd.buttonJustPressed("A") and state ~= states.logPulling then
             if not self.onTrigger then return end
@@ -199,39 +205,44 @@ function P1:climbManager()
             self.heldDir = {}
             self.currentDir = nil
             self.playerControl = false
+            RopeHookX = info[1] + 10
+            RopeHookY = info[2]
             self:changeState(6, info[1] + 10, self.y, info[3])
+            self.isClimbing = true
             return
         end
         if state == states.climbing then
             local x = pd.math.lerp(self.x, stumpX, 0.25)
             self:moveTo(x, self.y)
             local change, acceleratedChange = pd.getCrankChange()
-            if self.y > minClimbRange then
+            if self.y > self.minClimbRange then
                 if change > 30 then
                     self:moveBy(0, -1.5)
                 end
             else
-                self.y = minClimbRange
+                self.y = self.minClimbRange
             end
 
-            if self.y == minClimbRange then
+            if self.y == self.minClimbRange then
                 if pd.buttonJustPressed("A") then
                     self.playerControl = true
+                    self.isClimbing = false
                     state = states.fishing.front
                 end
             end
 
-            if self.y < maxClimbRange then
+            if self.y < self.maxClimbRange then
                 if change < -30 then
                     self:moveBy(0, 2)
                 end
             else
-                self.y = maxClimbRange
+                self.y = self.maxClimbRange
             end
 
-            if self.y == maxClimbRange then
+            if self.y == self.maxClimbRange then
                 if pd.buttonJustPressed("A") then
                     self.playerControl = true
+                    self.isCliming = false
                     state = states.fishing.front
                 end
             end
@@ -538,8 +549,8 @@ function P1:changeState(newState, xPos, minRange, maxRange)
     state = newState
     if state == 6 then
         stumpX = xPos
-        minClimbRange = minRange
-        maxClimbRange = maxRange
+        self.minClimbRange = minRange
+        self.maxClimbRange = maxRange
     end
 end
 

@@ -18,6 +18,7 @@ function CharacterSwitchUI:init()
     p1 = WorldObject(inactiveX, inactiveY, "images/characterCards/characterCard1", 10)
     p2 = WorldObject(activeX, activeY, "images/characterCards/characterCard2", 11)
     sp = SparkleParticle(100, 100)
+
     -- Set to invisible at start
     p1:setVisible(false)
     p2:setVisible(false)
@@ -100,7 +101,7 @@ function CharacterSwitchUI:changePlaces()
             coroutine.yield()
         end
 
-        -- Snap position and scale to ensure correct position
+        -- Snap position and scale
         p1:moveTo(p1GoalX, p1GoalY)
         p2:moveTo(p2GoalX, p2GoalY)
         p1:setScale(1, 1)

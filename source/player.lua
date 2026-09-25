@@ -216,7 +216,7 @@ function Player:switchManager()
         if CharacterUIActive then CharacterUIActive = false end
 
         if not self.onLog and not self.playerControl then self.playerControl = true end
-        if Manny.halt then Manny.halt = false end
+        if MinigameTrigger and Manny.halt then Manny.halt = false end
     end
 end
 

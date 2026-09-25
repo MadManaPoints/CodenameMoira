@@ -111,6 +111,33 @@ function Trigger:exitResponse(player)
 
 end
 
+UI = {}
+
+class('UI').extends(Trigger)
+
+local abilityUI
+
+function UI:init(x, y, w, h)
+    UI.super.init(self, x, y, w, h)
+    abilityUI = AbilitySwitchUI()
+end
+
+function UI:update()
+    if self:detectPlayer() or Manny ~= nil and (Manny.isClimbing and (Manny.y ~= Manny.minClimbRange and Manny.y ~= Manny.maxClimbRange) or (MinigameTrigger and PlayerOneActive)) then
+        if abilityUI.y > -50 then
+            abilityUI:moveBy(0, -5)
+        else
+            if abilityUI.y ~= -50 then abilityUI:moveTo(358, -50) end
+        end
+    elseif not self:detectPlayer() then
+        if abilityUI.y < 24 then
+            abilityUI:moveBy(0, 5)
+        else
+            if abilityUI.y ~= 0 then abilityUI:moveTo(358, 24) end
+        end
+    end
+end
+
 LogPole = {}
 
 class('LogPole').extends(Trigger)

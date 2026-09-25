@@ -53,6 +53,8 @@ function Room:updateColliders()
     --- LEVEL ONE (NIGHT) ---
 
     if self.roomNumber == 1 then
+        --local rope = Rope()
+
         local stump = Collider(141, 131, 24, 6)
         local stumpTrigger = Trigger(144, 140, 18, 4, 280, false, false, false)
         local trees1 = Collider(0, 0, 400, 30)
@@ -70,8 +72,12 @@ function Room:updateColliders()
         local border4 = Collider(260, 20, 140, 52)
         local border5 = Collider(260, 135, 140, 52)
 
-        local bramble1 = Breakable(260, 80, 1, Trackers.night.night1.rooms.room1.brambles[1])
-        local bramble2 = Breakable(260, 101, 2, Trackers.night.night1.rooms.room1.brambles[2])
+        local bramble1 = Breakable(281, 88, 1, Trackers.night.night1.rooms.room1.brambles[1])
+        local bramble2 = Breakable(281, 109, 2, Trackers.night.night1.rooms.room1.brambles[2])
+        local bramble3 = Breakable(302, 88, 3, Trackers.night.night1.rooms.room1.brambles[3])
+        local bramble4 = Breakable(302, 109, 4, Trackers.night.night1.rooms.room1.brambles[4])
+        local bramble5 = Breakable(323, 88, 5, Trackers.night.night1.rooms.room1.brambles[5])
+        local bramble6 = Breakable(323, 109, 6, Trackers.night.night1.rooms.room1.brambles[6])
     end
 
     if self.roomNumber == 2 then
@@ -99,6 +105,7 @@ function Room:updateColliders()
     end
 
     if self.roomNumber == 3 then
+        --local rope = Rope()
         --local waterfall = Waterfall(28, 57, false)
         local cliff1 = Collider(255, 77, 127, 36)
         local slingshot = Slingshot(125, 150, 1)
@@ -129,6 +136,8 @@ function Room:updateColliders()
     end
 
     if RoomID == 4 then
+        --local rope = Rope()
+
         local enemy1 = Enemy(38, 60, false, false, false, false, 1,
             Trackers.night.night1.rooms.room4.enemies.monster1[1])
         local enemy2 = Enemy(62, 180, false, false, false, false, 2,

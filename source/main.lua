@@ -15,10 +15,12 @@ import "timer"
 import "player"
 import "p1"
 import "p2"
+import "rope"
 import "breakable"
 import "waterfall"
 import "worldobject"
 import "characterSwitchUI"
+import "abilitySwitchUI"
 import "room"
 import "pathfinding"
 import "enemy"
@@ -44,10 +46,13 @@ Switching = false
 CharacterUIActive = false
 
 --- FIRST PROTOTYPE ---
-MinigameTrigger = true -- temp
+MinigameTrigger = false -- temp
 local minigameStart = false
 VictoryDictory = false
 DemoEnd = false
+
+local climbX, climbY
+local swordTutorial = true
 
 local function initialize()
     local textImg = gfx.image.new(300, 20)
@@ -63,14 +68,17 @@ local function initialize()
     --local kayak = Kayak(200, 200)
     --local chopping = Chopping()
     TwoPlayers = false
-    --Manny = P1(150, 30, true, true)
+    --Manny = P1(250, 30, true, true)
     --Manny = P1(startX, startY, true, true)
-    --Tati = P2(startX, startY, true, false)
+    --local abilityUI = AbilitySwitchUI()
+    Tati = P2(startX, startY, true, false)
 
     --local roomTest = Room("images/roomTest")
-    local firstRoom = 6
+    local firstRoom = 1
     RoomID = firstRoom
-    --local room1 = Room(firstRoom, "images/rooms/night1/room" .. tostring(firstRoom))
+    local room1 = Room(firstRoom, "images/rooms/night1/room" .. tostring(firstRoom))
+
+    local ui = UI(312, 0, 88, 44)
 
     --local co = coroutine.create(function() print("hi") end)
     --pd.ui.crankIndicator:draw()
@@ -96,6 +104,24 @@ function pd.update()
 
     gfx.sprite.update()
     pd.timer.updateTimers();
+
+    if swordTutorial then
+        if Tati.ability1 then
+            pd.ui.crankIndicator:draw()
+        end
+        if Tati.x < 350 then
+            swordTutorial = false
+        end
+    end
+
+    if Manny ~= nil and not Manny.onLog and Manny.isClimbing and Manny.y ~= Manny.maxClimbRange then
+        pd.ui.crankIndicator.clockwise = false
+        pd.ui.crankIndicator:draw()
+    end
+
+    if Manny ~= nil and Manny.onLog then
+        pd.ui.crankIndicator.clockwise = true
+    end
 
     --if fishing.canFish then
     --    gfx.drawText("START", 50, 50)
@@ -153,6 +179,18 @@ function pd.update()
     end
     --P:drawGrid()
     --P:updatePath()
+    if PlayerOneActive and Manny.isClimbing then
+        if Manny.triggerInfo ~= nil and climbX ~= Manny.triggerInfo[1] then
+            climbX = Manny.triggerInfo[1] + 10
+            climbY = Manny.triggerInfo[2]
+        end
+        gfx.setColor(gfx.kColorWhite)
+        gfx.setLineWidth(3)
+        gfx.drawLine(Manny.x, Manny.y - 10, climbX, climbY)
+        gfx.setColor(gfx.kColorBlack)
+        gfx.setLineWidth(1.5)
+        gfx.drawLine(Manny.x + 2, Manny.y - 10, climbX, climbY)
+    end
 end
 
 function SwitchPlayer()

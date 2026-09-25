@@ -19,7 +19,7 @@ Trackers =
                     down = 3,
                     left = 2,
                     right = nil,
-                    ["brambles"] = { false, false }
+                    ["brambles"] = { false, false, false, false, false, false }
                 },
                 ["room2"] =
                 {
@@ -116,6 +116,8 @@ function Manager:loadNewScene(x, y, isPlayerOne, currentDir, roomCheck)
     else
         Manny = P1(x, y, true, true, currentDir, roomCheck)
     end
+
+    local ui = UI(312, 0, 88, 44)
 end
 
 function Manager:loadMinigame(x1, y1, x2, y2, minigameNum)
@@ -135,4 +137,6 @@ function Manager:loadMinigame(x1, y1, x2, y2, minigameNum)
         Manny:logMinigame()
         Tati:logMinigame()
     end
+
+    local ui = UI(312, 0, 88, 44)
 end
