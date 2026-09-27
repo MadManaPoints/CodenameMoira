@@ -91,6 +91,8 @@ local prevZ = 0
 local castPosition = -0.7
 local logIndex = 1
 local logDirections = { 3, 0, 0, 0, 3, 90, -3, 0, 0, 0, -3, 90 } -- temp
+local buoyPositions = { 359, 84, 335, 212, 19, 196, 47, 18 }
+local buoyIndex = 1
 
 --- MINIGAMES ---
 
@@ -113,6 +115,8 @@ function P1:init(x, y, alone, isPlayerOne, currentDir)
     self.isClimbing = false
     self.minClimbRange = 0
     self.maxClimbRange = 0
+    self.currentCastTargetX = 0
+    self.currentCastTargetY = 0
     --self:setCollideRect(17, 18, 13, 18) -- 48x48
 
     self.anim = walkAnim.left           -- set start animation
@@ -414,6 +418,13 @@ function P1:logFishing()
         state = states.fishing.front
     end
 
+    if minigame1 then
+        if self.currentCastTargetX ~= 357 then
+            self.currentCastTargetX = 357
+            self.currentCastTargetY = 8
+        end
+    end
+
     if state == states.logPulling then
         if not self.reeling and pd.buttonIsPressed("A") then
             local gravityX, gravityY, gravityZ = pd.readAccelerometer()
@@ -452,6 +463,11 @@ function P1:logFishing()
 
             -- if current GravZ and previous GravZ are distant enough, reel has been cast into water
             if canCast and castStrength > reelCastThreshold then
+                if not minigame1 then
+                    self.currentCastTargetX = buoyPositions[buoyIndex]
+                    self.currentCastTargetY = buoyPositions[buoyIndex + 1]
+                end
+                print(self.currentCastTargetX)
                 print("REEL BABY")
                 self.reeling = true
                 canCast = false
@@ -485,6 +501,7 @@ function P1:logFishing()
                     if not colSP.isTrigger then
                         if not colSP.used then
                             logIndex += 3
+                            buoyIndex += 2
                             self.reeling = false
                             --colSP.used = true
                             colSP:setCollisionsEnabled(false)

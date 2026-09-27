@@ -51,7 +51,10 @@ local minigameStart = false
 VictoryDictory = false
 DemoEnd = false
 
+-- Line targets when reeling
 local climbX, climbY
+local reelX, reelY
+
 local swordTutorial = true
 
 local function initialize()
@@ -68,7 +71,7 @@ local function initialize()
     --local kayak = Kayak(200, 200)
     --local chopping = Chopping()
     TwoPlayers = false
-    --Manny = P1(250, 30, true, true)
+    --Manny = P1(150, 60, true, true)
     --Manny = P1(startX, startY, true, true)
     --local abilityUI = AbilitySwitchUI()
     Tati = P2(startX, startY, true, false)
@@ -77,6 +80,11 @@ local function initialize()
     local firstRoom = 1
     RoomID = firstRoom
     local room1 = Room(firstRoom, "images/rooms/night1/room" .. tostring(firstRoom))
+    --[[GAME_MANAGER:switchScene
+    (
+        Room(5, "images/rooms/night1/room5", true), 140, 60,
+        true
+    )]] --
 
     local ui = UI(312, 0, 88, 44)
 
@@ -159,9 +167,9 @@ function pd.update()
         gfx.fillRect(0, 0, 400, 240)
         gfx.drawText("Oh no! Manny is caught in the current.", 50, 50)
         gfx.drawText("Guide Tati through the level to save him!", 45, 80)
-        gfx.drawText("Hold B to bring up character menu.", 60, 140)
-        gfx.drawText("Press any d-pad button to switch characters.", 25, 170)
-        gfx.drawText("Press A to start.", 250, 220)
+        gfx.drawText("Hold B to bring up character menu, then", 25, 140)
+        gfx.drawText("press any d-pad button to switch characters.", 25, 170)
+        gfx.drawText("Press A to start.", 250, 215)
 
         if pd.buttonJustPressed('A') then
             minigameStart = true
@@ -176,6 +184,7 @@ function pd.update()
         else
             gfx.drawText("Manny got swept away!", 110, 100)
             gfx.drawText("Press A to try again.", 120, 130)
+            gfx.drawText("Remember: B + d-pad to switch characters.", 10, 215)
 
             -- Allow minigame reset if player loses
             if pd.buttonJustPressed('A') then
@@ -201,8 +210,20 @@ function pd.update()
             gfx.setColor(gfx.kColorWhite)
         end
 
-        if Manny.reeling then
-            --
+
+        -- NOTE: This is messy and very temporary. I want to take a crack at a rope physics system at some point --
+        if Manny.reeling and not (MinigameTrigger and not minigameStart) and Manny.onLog then
+            gfx.setColor(gfx.kColorWhite)
+            gfx.setLineWidth(3)
+            local targetOffsetX = 10
+            local targetOffsetY = 5
+            gfx.drawLine(Manny.x, Manny.y, Manny.currentCastTargetX + targetOffsetX,
+                Manny.currentCastTargetY + targetOffsetY)
+            gfx.setColor(gfx.kColorBlack)
+            gfx.setLineWidth(1.5)
+            gfx.drawLine(Manny.x + 2, Manny.y, Manny.currentCastTargetX + targetOffsetX,
+                Manny.currentCastTargetY + targetOffsetY)
+            gfx.setColor(gfx.kColorWhite)
         end
     end
 end

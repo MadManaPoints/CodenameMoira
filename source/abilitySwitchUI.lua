@@ -11,7 +11,11 @@ local sprites =
     broom = gfx.image.new("images/UI/broomPress"),
     rod = gfx.image.new("images/UI/rodPress"),
     spray = gfx.image.new("images/UI/sprayPress"),
-    holdA = gfx.image.new("images/UI/holdA"),
+    pressA =
+    {
+        attach = gfx.image.new("images/UI/attach"),
+        detach = gfx.image.new("images/UI/detach")
+    },
     cast = gfx.image.new("images/UI/cast"),
     castAnim = gfx.imagetable.new("images/UI/castAnim/cast")
 }
@@ -26,10 +30,15 @@ end
 
 function AbilitySwitchUI:update()
     if PlayerOneActive then
-        if Manny.triggerInfo ~= nil and not Manny.triggerInfo[4] and not Manny.triggerInfo[5] or Manny.isClimbing then
-            if self:getImage() ~= sprites.holdA then
+        if not Manny.isClimbing and Manny.triggerInfo ~= nil and not Manny.triggerInfo[4] and not Manny.triggerInfo[5] then
+            if self:getImage() ~= sprites.pressA.attach then
                 self:resetAnimator()
-                self:setImage(sprites.holdA)
+                self:setImage(sprites.pressA.attach)
+            end
+        elseif Manny.isClimbing and (Manny.y == Manny.maxClimbRange or Manny.y == Manny.minClimbRange) then
+            if self:getImage() ~= sprites.pressA.detach then
+                self:resetAnimator()
+                self:setImage(sprites.pressA.detach)
             end
         elseif (Manny.triggerInfo ~= nil and Manny.triggerInfo[4]) or (Manny.onLog and not MinigameTrigger) then
             if self:getImage() ~= sprites.cast then
