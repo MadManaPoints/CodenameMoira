@@ -3,8 +3,8 @@ local gfx <const> = pd.graphics
 
 CharacterSwitchUI = {}
 
-local activeX, activeY = 12, 228
-local inactiveX, inactiveY = 20, 220
+local activeX, activeY = 12 + 12, 228 - 12
+local inactiveX, inactiveY = 20 + 12, 220 - 12
 local co = nil
 local updateScale = 0
 
@@ -17,7 +17,10 @@ function CharacterSwitchUI:init()
     -- Instantiate player cards
     p1 = WorldObject(inactiveX, inactiveY, "images/characterCards/characterCard1", 10)
     p2 = WorldObject(activeX, activeY, "images/characterCards/characterCard2", 11)
+    p1:setScale(2, 2)
+    p2:setScale(2, 2)
     sp = SparkleParticle(100, 100)
+    sp:setScale(2, 2)
 
     -- Set to invisible at start
     p1:setVisible(false)
@@ -32,7 +35,7 @@ function CharacterSwitchUI:update()
         if not p2:isVisible() then p2:setVisible(true) end
 
         updateScale += 0.3                                 -- Changing number over time for sine update
-        local updateSize = 1 + math.sin(updateScale) * 0.1 -- oscillation for character card size
+        local updateSize = 2 + math.sin(updateScale) * 0.1 -- oscillation for character card size
 
         -- Update character card sizes
         if p1:getZIndex() == 11 then
@@ -50,13 +53,13 @@ function CharacterSwitchUI:update()
     if not PlayerOneActive and p1:getZIndex() ~= 10 then
         p1:setZIndex(10)
         p2:setZIndex(11)
-        p2:setScale(1.2, 1.2)            -- Make active card bigger during switch animation
+        p2:setScale(2.2, 2.2)            -- Make active card bigger during switch animation
 
         CharacterSwitchUI:changePlaces() -- coroutine to swap card positions
     elseif PlayerOneActive and p2:getZIndex() ~= 10 then
         p2:setZIndex(10)
         p1:setZIndex(11)
-        p1:setScale(1.2, 1.2)
+        p1:setScale(2.2, 2.2)
 
         CharacterSwitchUI:changePlaces()
     end
@@ -104,8 +107,8 @@ function CharacterSwitchUI:changePlaces()
         -- Snap position and scale
         p1:moveTo(p1GoalX, p1GoalY)
         p2:moveTo(p2GoalX, p2GoalY)
-        p1:setScale(1, 1)
-        p2:setScale(1, 1)
+        p1:setScale(2, 2)
+        p2:setScale(2, 2)
 
         Switching = false -- Let game know cards are in position
     end

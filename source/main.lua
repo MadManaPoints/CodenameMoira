@@ -122,7 +122,11 @@ function pd.update()
 
     if Manny ~= nil and ((Manny.onLog and Manny.reeling) or (not Manny.onLog and Manny.reeling)) and not MinigameTrigger then
         pd.ui.crankIndicator.clockwise = true
-        pd.ui.crankIndicator:draw()
+        if RoomID == 5 then
+            pd.ui.crankIndicator:draw(-150, -60)
+        else
+            pd.ui.crankIndicator:draw()
+        end
     end
 
     --if fishing.canFish then
@@ -182,18 +186,24 @@ function pd.update()
     end
     --P:drawGrid()
     --P:updatePath()
-    if PlayerOneActive and Manny.isClimbing then
-        if Manny.triggerInfo ~= nil and climbX ~= Manny.triggerInfo[1] then
-            climbX = Manny.triggerInfo[1] + 10
-            climbY = Manny.triggerInfo[2]
+    if PlayerOneActive then
+        if Manny.isClimbing then
+            if Manny.triggerInfo ~= nil and climbX ~= Manny.triggerInfo[1] then
+                climbX = Manny.triggerInfo[1] + 10
+                climbY = Manny.triggerInfo[2]
+            end
+            gfx.setColor(gfx.kColorWhite)
+            gfx.setLineWidth(3)
+            gfx.drawLine(Manny.x, Manny.y - 10, climbX, climbY)
+            gfx.setColor(gfx.kColorBlack)
+            gfx.setLineWidth(1.5)
+            gfx.drawLine(Manny.x + 2, Manny.y - 10, climbX, climbY)
+            gfx.setColor(gfx.kColorWhite)
         end
-        gfx.setColor(gfx.kColorWhite)
-        gfx.setLineWidth(3)
-        gfx.drawLine(Manny.x, Manny.y - 10, climbX, climbY)
-        gfx.setColor(gfx.kColorBlack)
-        gfx.setLineWidth(1.5)
-        gfx.drawLine(Manny.x + 2, Manny.y - 10, climbX, climbY)
-        gfx.setColor(gfx.kColorWhite)
+
+        if Manny.reeling then
+            --
+        end
     end
 end
 
@@ -206,7 +216,10 @@ end
 
 function ChangeActivePlayer()
     PlayerOneActive = not PlayerOneActive
-    if not PlayerOneActive and Manny.onLog then Manny:logMinigameSwitch() end
+    if not PlayerOneActive and Manny.onLog then
+        Manny:logMinigameSwitch()
+    end
+    Tati:updateUI()
 end
 
 function ChangePlaces()

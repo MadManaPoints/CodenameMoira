@@ -50,7 +50,6 @@ function Sword:update()
     local change, acceleratedChange = pd.getCrankChange()
     -- the faster you turn the crank, the faster you spin
     local spinStrength = acceleratedChange * 2 * Delta
-
     --print(change .. "  " .. acceleratedChange)
     --print(self.spin)
 

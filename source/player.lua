@@ -97,6 +97,10 @@ function Player:update()
         end
     end
 
+    if not self.isPlayerOne then
+        self:updateUI()
+    end
+
     -- Checkpoint --
     if self.ded then
         --self:swordManager()
@@ -172,6 +176,10 @@ function Player:abilityManager()
 end
 
 function Player:animationManager()
+
+end
+
+function Player:updateUI()
 
 end
 

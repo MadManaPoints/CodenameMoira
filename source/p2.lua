@@ -9,6 +9,9 @@ P2 = {}
 local sword = nil
 local swordEquipped = false
 local tornado = false
+local swordUI
+local paddleUI
+local UISineUpdate = 0
 
 -- Broom --
 local flyDir = { false, false, false, false }
@@ -113,6 +116,13 @@ function P2:init(x, y, alone, isPlayerOne, currentDir, abilityOneEquipped)
     P2.super.init(self, x, y, alone, isPlayerOne, currentDir, abilityOneEquipped)
     --self:setCollideRect(17, 12, 13, 18) -- 48x48
 
+    swordUI = WorldObject(10, 240 - 36, "images/UI/swordStrengthUI", 10)
+    paddleUI = WorldObject(10, 204, "images/UI/swordUI", 11)
+    paddleUI:setScale(1.5, 1.5)
+    --local paddleUI = WorldObject(12, 176, "images/UI/swordUI", 11)
+    --local paddleUI = WorldObject(12, 232, "images/UI/swordUI", 11)
+
+
     if abilityOneEquipped or abilityOneEquipped == nil then
         self.anim = swordAnim.idle
     else
@@ -126,6 +136,20 @@ end
 function P2:update()
     P2.super.update(self)
     --print(self.onTrigger)
+end
+
+function P2:updateUI()
+    if (self.ability2 or PlayerOneActive) then
+        if paddleUI:isVisible() then
+            swordUI:setVisible(false)
+            paddleUI:setVisible(false)
+        end
+    else
+        if not paddleUI:isVisible() then
+            swordUI:setVisible(true)
+            paddleUI:setVisible(true)
+        end
+    end
 end
 
 function P2:abilityManager()
@@ -333,9 +357,37 @@ end
 
 function P2:animationManager()
     if state == states.sword then
+        -- Update paddle UI based on sword spin speed --
+        local y = self:map(sword.spin, -10, 10, 232, 176)                      -- map to energy bar UI
+        if paddleUI.y ~= y then
+            paddleUI:moveTo(paddleUI.x, y)                                     -- update position
+            if paddleUI:getScale() ~= 1.5 then paddleUI:setScale(1.5, 1.5) end -- increase size while in motion
+        elseif sword.spin == 0 then
+            if paddleUI:getScale() == 1.5 then paddleUI:setScale(1, 1) end     -- reset size when stopped
+        end
+
+        if self.tornado then
+            -- Rotation paddle UI based on sword spin speed and direction
+            if sword.spin > 0 then
+                paddleUI:setRotation(paddleUI:getRotation() + 50)
+            else
+                paddleUI:setRotation(paddleUI:getRotation() - 50)
+            end
+        elseif paddleUI.y > 204 or paddleUI.y < 204 then
+            if sword.spin > 0 then
+                paddleUI:setRotation(paddleUI:getRotation() + 23)
+            else
+                paddleUI:setRotation(paddleUI:getRotation() - 23)
+            end
+            --paddleUI:setRotation(0 + math.sin(UISineUpdate / 2) * 45)
+        elseif paddleUI:getRotation() ~= 0 then
+            paddleUI:setRotation(0) -- reset rotation when stopped
+        end
+
+
         if sword.spin > 0 then
             -- If forward spin speed goes below threshold, end tornado animation
-            if sword.spin < 4 then
+            if sword.spin <= 6 then
                 if self.tornado then
                     self.tornado = false                -- tracks when to turn off collision
                     swordAnim.spinSlowForward.frame = 1 -- reset slow forward spin animation
@@ -343,7 +395,7 @@ function P2:animationManager()
 
                 -- Set new animation back to spin
                 if self.anim ~= swordAnim.spinSlowForward then self.anim = swordAnim.spinSlowForward end
-            elseif sword.spin >= 4 then
+            elseif sword.spin >= 6 then
                 -- If forward spin speed goes above threshold, start tornado animation
                 if not self.tornado then
                     self.tornado = true                 -- tracks when to apply collision
@@ -355,7 +407,7 @@ function P2:animationManager()
             end
         elseif sword.spin < 0 then
             -- If backward spin speed goes above threshold, end tornado animation
-            if sword.spin > -4 then
+            if sword.spin >= -6 then
                 if self.tornado then
                     self.tornado = false                -- tracks when to turn off collision
                     swordAnim.spinSlowReverse.frame = 1 -- reset animation
@@ -363,7 +415,7 @@ function P2:animationManager()
 
                 -- Set animation back to spin
                 if self.anim ~= swordAnim.spinSlowReverse then self.anim = swordAnim.spinSlowReverse end
-            elseif sword.spin <= -4 then
+            elseif sword.spin <= -6 then
                 -- If backward spin goes below threshold, start tornado animation
                 if not self.tornado then
                     self.tornado = true                 -- tracks when to apply collision
@@ -436,4 +488,13 @@ function P2:collisionResponse(other)
         end
         return 'overlap'
     end
+end
+
+function P2:map(value, minA, maxA, minB, maxB)
+    local range = maxA - minA;
+    local valuePercent = (value - minA) / range;
+
+    local newRange = maxB - minB;
+
+    return valuePercent * newRange + minB;
 end

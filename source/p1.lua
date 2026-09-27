@@ -124,8 +124,6 @@ end
 function P1:update()
     P1.super.update(self)
 
-    print(self.isClimbing)
-
     --print(state)
     if logGame and not self.halt then
         self:logGame()
@@ -577,7 +575,6 @@ function P1:animationManager()
     elseif state == states.walking.back or state == states.climbing or state == states.fishing.back then
         if self.anim ~= walkAnim.back then self.anim = walkAnim.back end
     elseif state == states.idle then
-        print("?>?")
         if self.anim ~= idleAnim then self.anim = idleAnim end
     end
 end

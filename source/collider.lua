@@ -125,7 +125,7 @@ end
 function UI:update()
     if self:detectPlayer() or Manny ~= nil and
         (Manny.isClimbing and (Manny.y ~= Manny.minClimbRange and Manny.y ~= Manny.maxClimbRange)
-            or (MinigameTrigger and PlayerOneActive) or (Manny.onLog and Manny.reeling)) then
+            or (MinigameTrigger and PlayerOneActive) or Manny.reeling) then
         if abilityUI.y > -50 then
             abilityUI:moveBy(0, -5)
         else
