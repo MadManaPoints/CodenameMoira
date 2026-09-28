@@ -24,7 +24,7 @@ local speed = 3
 local spriteSheet =
 {
     femaleIdle = gfx.imagetable.new("images/femaleIdle/femaleIdle"),
-    femaleWalk = gfx.imagetable.new("images/femaleWalk/femaleWalk"),
+    femaleWalk = gfx.imagetable.new("images/swordWalk/femaleWalk"),
     femaleFlying = gfx.imagetable.new("images/flying/flying"),
     log = gfx.image.new("images/log"),
     sword = gfx.imagetable.new("images/swingAttack/swingAttack"),
@@ -34,10 +34,10 @@ local idleAnim = gfx.animation.loop.new(100, spriteSheet.femaleIdle, true)
 
 local walkAnim =
 {
-    left = gfx.animation.loop.new(90, spriteSheet.femaleWalk, true),
-    right = gfx.animation.loop.new(90, spriteSheet.femaleWalk, true),
-    front = gfx.animation.loop.new(70, spriteSheet.femaleWalk, true),
-    back = gfx.animation.loop.new(70, spriteSheet.femaleWalk, true),
+    left = gfx.animation.loop.new(200, spriteSheet.femaleWalk, true),
+    right = gfx.animation.loop.new(200, spriteSheet.femaleWalk, true),
+    front = gfx.animation.loop.new(200, spriteSheet.femaleWalk, true),
+    back = gfx.animation.loop.new(200, spriteSheet.femaleWalk, true),
 }
 
 walkAnim.left.startFrame = 1
@@ -77,9 +77,9 @@ local swordAnim =
 {
     idle = gfx.animation.loop.new(100, spriteSheet.sword, false),
     spinSlowForward = gfx.animation.loop.new(160, spriteSheet.sword, true),
-    spinFastForward = gfx.animation.loop.new(75, spriteSheet.sword, true),
+    spinFastForward = gfx.animation.loop.new(95, spriteSheet.sword, true),
     spinSlowReverse = gfx.animation.loop.new(160, spriteSheet.sword, true),
-    spinFastReverse = gfx.animation.loop.new(75, spriteSheet.sword, true),
+    spinFastReverse = gfx.animation.loop.new(95, spriteSheet.sword, true),
     tornado = gfx.animation.loop.new(120, spriteSheet.sword, true)
 }
 
@@ -104,11 +104,10 @@ local states =
     idle = 1,
     walking = { left = 2, right = 3, front = 4, back = 5 },
     flying = { idle = 6, left = 7, right = 8, front = 9, back = 10 },
-    sword = 11,
+    sword = { idle = 11, left = 12, right = 13, front = 14, back = 15 }
 }
 
-local state = states.idle
-
+local state = states.sword.front
 
 class('P2').extends(Player)
 
@@ -124,7 +123,7 @@ function P2:init(x, y, alone, isPlayerOne, currentDir, abilityOneEquipped)
 
 
     if abilityOneEquipped or abilityOneEquipped == nil then
-        self.anim = swordAnim.idle
+        self.anim = walkAnim.front
     else
         self.anim = flyAnim.left
     end
@@ -166,35 +165,61 @@ function P2:movement(_goalX, _goalY)
         self.currentDir = self.heldDir[#self.heldDir]
     end
 
+    -- Move up
     if (not flying and self.currentDir == "up") or flyDir[1] then
-        if not flying and state ~= states.sword then
-            if state ~= states.walking.back then state = states.walking.back end
+        if not flying then
+            if not swordEquipped then
+                if state ~= states.walking.back then state = states.walking.back end
+            elseif state ~= states.sword.back then
+                state = states.sword.back
+            end
         elseif flying then
             if state ~= states.flying.back then state = states.flying.back end
         end
+
         _goalY -= speed
+
+        -- Move down
     elseif (not flying and self.currentDir == "down") or flyDir[2] then
-        if not flying and state ~= states.sword then
-            if state ~= states.walking.front then state = states.walking.front end
+        if not flying then
+            if not swordEquipped then
+                if state ~= states.walking.front then state = states.walking.front end
+            elseif state ~= states.sword.front then
+                state = states.sword.front
+            end
         elseif flying then
             if state ~= states.flying.front then state = states.flying.front end
         end
+
         _goalY += speed
     end
 
+    -- Move left
     if (not flying and self.currentDir == "left") or flyDir[3] then
-        if not flying and state ~= states.sword then
-            if state ~= states.walking.left then state = states.walking.left end
+        if not flying then
+            if not swordEquipped then
+                if state ~= states.walking.left then state = states.walking.left end
+            elseif state ~= states.sword.left then
+                state = states.sword.left
+            end
         elseif flying then
             if state ~= states.flying.left then state = states.flying.left end
         end
+
         _goalX -= speed
+
+        -- Move right
     elseif (not flying and self.currentDir == "right") or flyDir[4] then
-        if not flying and state ~= states.sword then
-            if state ~= states.walking.right then state = states.walking.right end
+        if not flying then
+            if not swordEquipped then
+                if state ~= states.walking.right then state = states.walking.right end
+            elseif state ~= states.sword.right then
+                state = states.sword.right
+            end
         elseif flying then
             if state ~= states.flying.right then state = states.flying.right end
         end
+
         _goalX += speed
     end
 
@@ -321,14 +346,12 @@ function P2:swordManager()
         flying = false
     end
 
-    -- turn sword on or off
-    if state ~= states.sword then
-        state = states.sword
-    end
-
     swordEquipped = true
     if self.ability2 then self.ability2 = false end
-    if not self.ability1 then self.ability1 = true end
+    if not self.ability1 then
+        state = states.sword.front
+        self.ability1 = true
+    end
 end
 
 function P2:abilityOne()
@@ -356,7 +379,7 @@ function P2:logMinigame()
 end
 
 function P2:animationManager()
-    if state == states.sword then
+    if swordEquipped then
         -- Update paddle UI based on sword spin speed --
         local y = self:map(sword.spin, -10, 10, 232, 176)                      -- map to energy bar UI
         if paddleUI.y ~= y then
@@ -430,7 +453,16 @@ function P2:animationManager()
             swordAnim.spinSlowForward.frame = 1
             swordAnim.spinSlowReverse.frame = 1
 
-            if self.anim ~= swordAnim.idle then self.anim = swordAnim.idle end
+            if state == states.sword.left then
+                if self.anim ~= walkAnim.left then self.anim = walkAnim.left end
+            elseif state == states.sword.right then
+                if self.anim ~= walkAnim.right then self.anim = walkAnim.right end
+            elseif state == states.sword.front then
+                if self.anim ~= walkAnim.front then self.anim = walkAnim.front end
+            elseif state == states.sword.back then
+                if self.anim ~= walkAnim.back then self.anim = walkAnim.back end
+            end
+
             if self.tornado then
                 self.tornado = false
             end

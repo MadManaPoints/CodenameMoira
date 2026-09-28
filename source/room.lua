@@ -163,12 +163,25 @@ function Room:updateColliders()
     end
 
     if RoomID == 5 then
+        -- World Object --
+        local waterFall = Waterfall(39, 52, true)
+
         local border1 = Collider(79, 0, 5, 107)
         local border2 = Collider(84, 107, 73, 5)
         local border3 = Collider(158, 0, 5, 83)
+
+        -- Buoys --
+        local buoy1 = Buoy(369, 94)
         local border4 = Collider(359, 84, 19, 16)
+
+        local buoy2 = Buoy(345, 222)
         local border5 = Collider(335, 212, 19, 16)
+
+        local buoy3 = Buoy(29, 206)
         local border6 = Collider(19, 196, 19, 16)
+
+        local buoy4 = Buoy(57, 28)
+
         local log = LogPole(174, 94, 20, 20, 0, false, false, true)
         local exit = Exit(30, 30, 50, 20, 1)
         --local log1 = WorldObject(174, 94, "images/worldObjects/log")
@@ -205,7 +218,10 @@ function Room:updateColliders()
         local border14 = Collider(0, -18, 400, 5)
         local border15 = Collider(0, 240, 400, 5)
         local border16 = Collider(400, 0, 5, 240)
+
+        local buoy1 = Buoy(364, 15)
         local border17 = Collider(354, 5, 19, 16)
+
         local border18 = Collider(0, -5, 100, 5)
         local water1 = Water(19, 55, 59, 124)
         local water2 = Water(95, 117, 119, 36)

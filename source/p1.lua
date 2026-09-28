@@ -8,7 +8,8 @@ local speed = 3
 local spriteSheet =
 {
     maleIdle = gfx.imagetable.new("images/maleIdle/maleIdle"),
-    maleWalk = gfx.imagetable.new("images/players/p1/walk/walk"),
+    maleWalk = gfx.imagetable.new("images/players/p1/poleWalk/walk"),
+    rappel = gfx.imagetable.new("images/players/p1/walk/walk"),
     malePole = gfx.image.new("images/malePole/fishingPole"),
     log = gfx.image.new("images/newLog"),
     jump = gfx.imagetable.new("images/malePole/jump/fishpoleJump"),
@@ -19,10 +20,11 @@ local idleAnim = gfx.animation.loop.new(150, spriteSheet.maleIdle, true)
 
 local walkAnim =
 {
-    left = gfx.animation.loop.new(90, spriteSheet.maleWalk, true),
-    right = gfx.animation.loop.new(90, spriteSheet.maleWalk, true),
-    front = gfx.animation.loop.new(70, spriteSheet.maleWalk, true),
-    back = gfx.animation.loop.new(70, spriteSheet.maleWalk, true)
+    left = gfx.animation.loop.new(180, spriteSheet.maleWalk, true),
+    right = gfx.animation.loop.new(180, spriteSheet.maleWalk, true),
+    front = gfx.animation.loop.new(200, spriteSheet.maleWalk, true),
+    back = gfx.animation.loop.new(200, spriteSheet.maleWalk, true),
+    rappel = gfx.animation.loop.new(180, spriteSheet.rappel, true)
 }
 
 walkAnim.left.startFrame = 1
@@ -36,6 +38,9 @@ walkAnim.front.endFrame = 12
 
 walkAnim.back.startFrame = 13
 walkAnim.back.endFrame = 16
+
+walkAnim.rappel.startFrame = 13
+walkAnim.rappel.endFrame = 16
 
 local swingAnim = nil
 
@@ -467,7 +472,6 @@ function P1:logFishing()
                     self.currentCastTargetX = buoyPositions[buoyIndex]
                     self.currentCastTargetY = buoyPositions[buoyIndex + 1]
                 end
-                print(self.currentCastTargetX)
                 print("REEL BABY")
                 self.reeling = true
                 canCast = false
@@ -589,8 +593,10 @@ function P1:animationManager()
         if self.anim ~= walkAnim.right then self.anim = walkAnim.right end
     elseif state == states.walking.front or state == states.fishing.front then
         if self.anim ~= walkAnim.front then self.anim = walkAnim.front end
-    elseif state == states.walking.back or state == states.climbing or state == states.fishing.back then
-        if self.anim ~= walkAnim.back then self.anim = walkAnim.back end
+    elseif state == states.walking.back then
+        if self.anin ~= walkAnim.back then self.anim = walkAnim.back end
+    elseif state == states.climbing or state == states.fishing.back then
+        if self.anim ~= walkAnim.rappel then self.anim = walkAnim.rappel end
     elseif state == states.idle then
         if self.anim ~= idleAnim then self.anim = idleAnim end
     end

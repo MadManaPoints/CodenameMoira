@@ -24,7 +24,7 @@ function AbilitySwitchUI:init()
     self:moveTo(358, 24)
     self:setGroups(10)
     self:setZIndex(10)
-    self.anim = gfx.animation.loop.new(150, sprites.castAnim, true)
+    self.anim = gfx.animation.loop.new(110, sprites.castAnim, true)
     self:add()
 end
 

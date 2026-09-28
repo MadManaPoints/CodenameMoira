@@ -19,6 +19,7 @@ import "rope"
 import "breakable"
 import "waterfall"
 import "worldobject"
+import "buoy"
 import "characterSwitchUI"
 import "abilitySwitchUI"
 import "room"
@@ -212,10 +213,10 @@ function pd.update()
 
 
         -- NOTE: This is messy and very temporary. I want to take a crack at a rope physics system at some point --
-        if Manny.reeling and not (MinigameTrigger and not minigameStart) and Manny.onLog then
+        if Manny.reeling and not (MinigameTrigger and not minigameStart) and Manny.onLog and not DemoEnd then
             gfx.setColor(gfx.kColorWhite)
             gfx.setLineWidth(3)
-            local targetOffsetX = 10
+            local targetOffsetX = MinigameTrigger and 7 or 10
             local targetOffsetY = 5
             gfx.drawLine(Manny.x, Manny.y, Manny.currentCastTargetX + targetOffsetX,
                 Manny.currentCastTargetY + targetOffsetY)
