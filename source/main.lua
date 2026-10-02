@@ -8,6 +8,7 @@ import "CoreLibs/crank"
 import "CoreLibs/ui"
 
 --my scripts
+import "verlet"
 import "manager"
 import "collider"
 import "slingshot"
@@ -58,16 +59,17 @@ local reelX, reelY
 
 local swordTutorial = true
 
+local verletTest = true
+
 local function initialize()
-    local textImg = gfx.image.new(300, 20)
-    --achieves same effect of push and pop
+    local textImg = gfx.image.new(400, 20)
     gfx.lockFocus(textImg)
-    --gfx.drawText("YERRR, THIS IS A TEST", 0, 0)
+    gfx.drawText("Verlet Test", 150, 0)
     gfx.unlockFocus()
     local textSprite = gfx.sprite.new(textImg)
     textSprite:setZIndex(30)
-    textSprite:moveTo(260, 15)
-    --textSprite:add()
+    textSprite:moveTo(200, 20)
+    textSprite:add()
 
     --local kayak = Kayak(200, 200)
     --local chopping = Chopping()
@@ -75,19 +77,19 @@ local function initialize()
     --Manny = P1(150, 60, true, true)
     --Manny = P1(startX, startY, true, true)
     --local abilityUI = AbilitySwitchUI()
-    Tati = P2(startX, startY, true, false)
+    --Tati = P2(startX, startY, true, false)
 
     --local roomTest = Room("images/roomTest")
     local firstRoom = 1
     RoomID = firstRoom
-    local room1 = Room(firstRoom, "images/rooms/night1/room" .. tostring(firstRoom))
+    --local room1 = Room(firstRoom, "images/rooms/night1/room" .. tostring(firstRoom))
     --[[GAME_MANAGER:switchScene
     (
         Room(5, "images/rooms/night1/room5", true), 140, 60,
         true
     )]] --
 
-    local ui = UI(312, 0, 88, 44)
+    --local ui = UI(312, 0, 88, 44)
 
     --local co = coroutine.create(function() print("hi") end)
     --pd.ui.crankIndicator:draw()
@@ -95,13 +97,15 @@ local function initialize()
 
     --local menu = playdate.getSystemMenu()
     --menu:addMenuItem("Switch", function() ChangeActivePlayer() end)
+
+    local verlet = Verlet()
 end
 
 local test = 0
 --local fishing = Fishing()
 
 --- **DEBUGGING** ---
-gfx.setColor(gfx.kColorWhite)
+gfx.setColor(gfx.kColorBlack)
 
 initialize()
 
@@ -113,6 +117,8 @@ function pd.update()
 
     gfx.sprite.update()
     pd.timer.updateTimers();
+
+    if verletTest then return end
 
     if swordTutorial then
         if Tati.ability1 then
