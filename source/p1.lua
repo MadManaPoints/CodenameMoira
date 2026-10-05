@@ -86,6 +86,7 @@ local state = states.fishing.left
 local canUsePole = false
 local rope = nil
 RopeHookX, RopeHookY = 0, 0
+local verletTest = nil
 local stumpX = 0
 local isSwinging = false
 local castTimer = Timer(0.5)
@@ -96,7 +97,7 @@ local prevZ = 0
 local castPosition = -0.7
 local logIndex = 1
 local logDirections = { 3, 0, 0, 0, 3, 90, -3, 0, 0, 0, -3, 90 } -- temp
-local buoyPositions = { 359, 84, 335, 212, 19, 196, 47, 18 }
+local buoyPositions = { 364, 84, 345, 212, 30, 196, 58, 20 }
 local buoyIndex = 1
 
 --- MINIGAMES ---
@@ -116,6 +117,7 @@ class('P1').extends(Player)
 function P1:init(x, y, alone, isPlayerOne, currentDir)
     P1.super.init(self, x, y, alone, isPlayerOne, currentDir)
     self.swingTargetTracker = 0
+    self.casting = false
     self.reeling = false
     self.isClimbing = false
     self.minClimbRange = 0
@@ -217,6 +219,9 @@ function P1:climbManager()
             self.playerControl = false
             RopeHookX = info[1] + 10
             RopeHookY = info[2]
+            print("HOOKED" .. "  |  " .. RopeHookX .. "  |  " .. RopeHookY)
+
+            verletTest = Verlet(self.x, self.y, RopeHookX, RopeHookY)
             self:changeState(6, info[1] + 10, self.y, info[3])
             self.isClimbing = true
             return
@@ -235,6 +240,8 @@ function P1:climbManager()
 
             if self.y == self.minClimbRange then
                 if pd.buttonJustPressed("A") then
+                    verletTest:reset()
+                    self.reeling = false
                     self.playerControl = true
                     self.isClimbing = false
                     state = states.fishing.front
@@ -251,6 +258,8 @@ function P1:climbManager()
 
             if self.y == self.maxClimbRange then
                 if pd.buttonJustPressed("A") then
+                    verletTest:reset()
+                    self.reeling = false
                     self.playerControl = true
                     self.isCliming = false
                     state = states.fishing.front
@@ -419,19 +428,19 @@ function P1:logFishing()
         --self.anim = jumpAnim.firstPos
         --self.playerControl = false
         state = states.logPulling
-    elseif state == states.logPulling and pd.buttonJustReleased("A") and not self.reeling and not minigame1 then
+    elseif state == states.logPulling and pd.buttonJustReleased("A") and not self.reeling and not self.casting and not minigame1 then
         state = states.fishing.front
     end
 
     if minigame1 then
-        if self.currentCastTargetX ~= 357 then
-            self.currentCastTargetX = 357
-            self.currentCastTargetY = 8
+        if self.currentCastTargetX ~= 364 then
+            self.currentCastTargetX = 364
+            self.currentCastTargetY = 10
         end
     end
 
     if state == states.logPulling then
-        if not self.reeling and pd.buttonIsPressed("A") then
+        if not self.casting and pd.buttonIsPressed("A") then
             local gravityX, gravityY, gravityZ = pd.readAccelerometer()
             local castStrength = math.abs(gravityZ - prevZ)
 
@@ -473,10 +482,14 @@ function P1:logFishing()
                     self.currentCastTargetY = buoyPositions[buoyIndex + 1]
                 end
                 print("REEL BABY")
-                self.reeling = true
+                --self.reeling = true
+                verletTest = Verlet(self.x, self.y, self.currentCastTargetX, self.currentCastTargetY, true)
+
+                self.casting = true
                 canCast = false
             end
         elseif self.reeling then
+            if self.casting then self.casting = false end
             local change, acceleratedChange = pd.getCrankChange()
             local goalX, goalY = self.x, self.y
             -- Yoko Ogawa short story collection (author of The Housekeeper and the Professor)
@@ -504,6 +517,7 @@ function P1:logFishing()
                     local colSP = col.other
                     if not colSP.isTrigger then
                         if not colSP.used then
+                            verletTest:reset()
                             logIndex += 3
                             buoyIndex += 2
                             self.reeling = false
@@ -552,6 +566,10 @@ function P1:abilityTwo()
 end
 
 function P1:logMinigame()
+    self.reeling = false
+    self.casting = false
+    verletTest:reset()
+
     PlayerOneActive = false
     state = states.logPulling
     self.playerControl = false
@@ -564,6 +582,8 @@ end
 
 function P1:logMinigameSwitch()
     self.reeling = false
+    self.casting = false
+    verletTest:reset()
 end
 
 function P1:changeState(newState, xPos, minRange, maxRange)
@@ -603,7 +623,10 @@ function P1:animationManager()
 end
 
 function P1:roomCheck()
-    if state == states.climbing then state = states.fishing.front end
+    if state == states.climbing then
+        state = states.fishing.front
+        verletTest:reset()
+    end
 end
 
 function P1:collisionResponse(other)

@@ -59,17 +59,17 @@ local reelX, reelY
 
 local swordTutorial = true
 
-local verletTest = true
+local verletTest = false
 
 local function initialize()
-    local textImg = gfx.image.new(400, 20)
+    --[[local textImg = gfx.image.new(400, 20)
     gfx.lockFocus(textImg)
     gfx.drawText("Verlet Test", 150, 0)
     gfx.unlockFocus()
     local textSprite = gfx.sprite.new(textImg)
     textSprite:setZIndex(30)
     textSprite:moveTo(200, 20)
-    textSprite:add()
+    textSprite:add()--]]
 
     --local kayak = Kayak(200, 200)
     --local chopping = Chopping()
@@ -77,19 +77,19 @@ local function initialize()
     --Manny = P1(150, 60, true, true)
     --Manny = P1(startX, startY, true, true)
     --local abilityUI = AbilitySwitchUI()
-    --Tati = P2(startX, startY, true, false)
+    Tati = P2(startX, startY, true, false)
 
     --local roomTest = Room("images/roomTest")
     local firstRoom = 1
     RoomID = firstRoom
-    --local room1 = Room(firstRoom, "images/rooms/night1/room" .. tostring(firstRoom))
+    local room1 = Room(firstRoom, "images/rooms/night1/room" .. tostring(firstRoom))
     --[[GAME_MANAGER:switchScene
     (
         Room(5, "images/rooms/night1/room5", true), 140, 60,
         true
-    )]] --
+    ) --]]
 
-    --local ui = UI(312, 0, 88, 44)
+    local ui = UI(312, 0, 88, 44)
 
     --local co = coroutine.create(function() print("hi") end)
     --pd.ui.crankIndicator:draw()
@@ -98,14 +98,14 @@ local function initialize()
     --local menu = playdate.getSystemMenu()
     --menu:addMenuItem("Switch", function() ChangeActivePlayer() end)
 
-    local verlet = Verlet()
+    --local verlet = Verlet(200, 80, 350, 200)
 end
 
 local test = 0
 --local fishing = Fishing()
 
 --- **DEBUGGING** ---
-gfx.setColor(gfx.kColorBlack)
+--gfx.setColor(gfx.kColorBlack)
 
 initialize()
 
@@ -154,8 +154,8 @@ function pd.update()
     --- **DEBUGGING** ---
     --gfx.fillRect(0, 0, 80, 40)
     --gfx.drawText(tostring(test), 10, 10)
-
     if Meanwhile then
+        gfx.setColor(gfx.kColorWhite)
         gfx.fillRect(0, 0, 400, 240)
         gfx.drawText("Meanwhile...", 150, 110)
 
@@ -202,7 +202,9 @@ function pd.update()
     end
     --P:drawGrid()
     --P:updatePath()
-    if PlayerOneActive then
+
+
+    --[[if PlayerOneActive then
         if Manny.isClimbing then
             if Manny.triggerInfo ~= nil and climbX ~= Manny.triggerInfo[1] then
                 climbX = Manny.triggerInfo[1] + 10
@@ -232,7 +234,7 @@ function pd.update()
                 Manny.currentCastTargetY + targetOffsetY)
             gfx.setColor(gfx.kColorWhite)
         end
-    end
+    end--]]
 end
 
 function SwitchPlayer()

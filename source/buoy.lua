@@ -10,7 +10,7 @@ local buoySpritesheet = gfx.imagetable.new("images/worldObjects/buoy/buoys")
 function Buoy:init(x, y)
     self:moveTo(x, y)
     self.anim = gfx.animation.loop.new(150, buoySpritesheet, true)
-    self:setZIndex(5)
+    self:setZIndex(4)
     self:add()
 end
 
