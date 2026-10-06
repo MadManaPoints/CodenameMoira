@@ -109,8 +109,14 @@ local minigame1 = false
 -- Bug Spray --
 local spray = nil
 local isSpraying = false
-local sprayDir = "down"
+local sprayDir = "left"
 local sprayTimer = Timer(0.7)
+local newSprayTimer = nil
+local checkSpray = false
+local sprayFuel = 100
+local sprayEnergyBar
+local sprayUI
+
 
 class('P1').extends(Player)
 
@@ -126,7 +132,12 @@ function P1:init(x, y, alone, isPlayerOne, currentDir)
     self.currentCastTargetY = 0
     --self:setCollideRect(17, 18, 13, 18) -- 48x48
 
-    self.anim = walkAnim.left           -- set start animation
+    self.anim = walkAnim.left -- set start animation
+
+    sprayEnergyBar = Cooldown(0, 0, 100)
+    sprayUI = WorldObject(5, 210, "images/UI/sprayBarBg", 9)
+    sprayUI:setVisible(false)
+
 
     self:setCollideRect(17, 18, 13, 18) -- 48x48
     self:add()
@@ -149,23 +160,23 @@ function P1:movement(_goalX, _goalY)
         -- set most recent button pressed as current direction
     elseif self.currentDir ~= self.heldDir[#self.heldDir] then
         self.currentDir = self.heldDir[#self.heldDir]
-        sprayDir = self.currentDir
+        --sprayDir = self.currentDir
     end
 
     if self.currentDir == "up" then
         if state ~= states.walking.back then state = states.walking.back end
-        _goalY -= speed
+        if not isSpraying or (isSpraying and not pd.isCrankDocked()) then _goalY -= speed end
     elseif self.currentDir == "down" then
         if state ~= states.walking.front then state = states.walking.front end
-        _goalY += speed
+        if not isSpraying or (isSpraying and not pd.isCrankDocked()) then _goalY += speed end
     end
 
     if self.currentDir == "left" then
         if state ~= states.walking.left then state = states.walking.left end
-        _goalX -= speed
+        if not isSpraying or (isSpraying and not pd.isCrankDocked()) then _goalX -= speed end
     elseif self.currentDir == "right" then
         if state ~= states.walking.right then state = states.walking.right end
-        _goalX += speed
+        if not isSpraying or (isSpraying and not pd.isCrankDocked()) then _goalX += speed end
     end
 
     if self.alone == nil then
@@ -369,6 +380,26 @@ end
 
 function P1:sprayManager()
     if isSpraying then
+        local crank = pd.getCrankPosition()
+        local change, acceleratedChange = pd.getCrankChange()
+        local cranking = change ~= 0 and (acceleratedChange > 2 or acceleratedChange < -2)
+
+        if crank >= 330 or crank <= 30 then
+            sprayDir = "up"
+        end
+
+        if crank > 60 and crank <= 120 then
+            sprayDir = "right"
+        end
+
+        if crank > 140 and crank <= 210 then
+            sprayDir = "down"
+        end
+
+        if crank > 240 and crank < 300 then
+            sprayDir = "left"
+        end
+
         -- Change direction of spray based on movement direction
         if sprayDir == "up" then
             spray:changeDirection(self.x, self.y - 20)
@@ -382,33 +413,46 @@ function P1:sprayManager()
             spray:changeDirection(self.x + 18, self.y)
         end
 
-        local crank = pd.getCrankPosition()
-        local change, acceleratedChange = pd.getCrankChange()
-        local cranking = change ~= 0 and (acceleratedChange > 2 or acceleratedChange < -2)
+        if sprayEnergyBar.current == sprayEnergyBar.max then
+            if spray:isVisible() then
+                spray:setVisible(false)
+                spray:setCollisionsEnabled(false)
+            end
+            return
+        end
+
+        if checkSpray and cranking then
+            newSprayTimer:remove()
+            newSprayTimer = nil
+            checkSpray = false
+        end
 
         -- Show spray sprite if player is moving crank
         if cranking then
+            if sprayEnergyBar.current > sprayEnergyBar.max then
+                sprayEnergyBar.current -= 1
+            else
+                sprayEnergyBar.current = sprayEnergyBar.max
+            end
+
             if not spray:isVisible() then
                 spray:setUpdatesEnabled(true)
                 spray:setCollisionsEnabled(true)
                 spray:setVisible(true)
             end
 
-            --if sprayTimer.startTimer then sprayTimer.startTimer = false end
-        else
-            if not sprayTimer.startTimer and spray:isVisible() then
-                -- If player stops moving and spray is visible, start spray timer
-                sprayTimer.targetTime = sprayTimer.totalTime
-                sprayTimer.startTimer = true
-            else
-                -- Turn off spray if player doesn't move crank before timer goes off
-                if sprayTimer.timeout then
-                    -- Reset timer variables
-                    sprayTimer.startTimer = false
-                    sprayTimer.timeout = false
-                    spray:setVisible(false)
-                    spray:setCollisionsEnabled(false)
+            if newSprayTimer == nil then
+                local function sprayTimerUp()
+                    checkSpray = true
                 end
+
+                newSprayTimer = pd.timer.new(1000, sprayTimerUp)
+            end
+            --if sprayTimer.startTimer then sprayTimer.startTimer = false end
+        elseif checkSpray then
+            if spray:isVisible() then
+                spray:setVisible(false)
+                spray:setCollisionsEnabled(false)
             end
         end
     end
@@ -531,10 +575,25 @@ function P1:logFishing()
     end
 end
 
+function P1:updateUI()
+    if (self.ability1 or not PlayerOneActive) then
+        if sprayEnergyBar:isVisible() then
+            sprayUI:setVisible(false)
+            sprayEnergyBar:setVisible(false)
+        end
+    else
+        if not sprayEnergyBar:isVisible() then
+            sprayUI:setVisible(true)
+            sprayEnergyBar:setVisible(true)
+        end
+    end
+end
+
 function P1:bugSpray()
     if state == states.climbing then return end
     if self.ability1 then self.ability1 = false end
     self.ability2 = true
+
     if spray == nil then
         spray = Spray(self.x, self.y + 20, 20, 20)
         spray:setZIndex(4)
@@ -607,6 +666,23 @@ end
 function P1:animationManager()
     if state == states.swinging then
         --nada
+    elseif isSpraying then
+        if sprayEnergyBar.current ~= sprayEnergyBar.max and pd.isCrankDocked() then
+            if self.anim ~= walkAnim.front then self.anim = walkAnim.front end
+        else
+            if sprayDir == "up" then
+                if self.anim ~= walkAnim.back then self.anim = walkAnim.back end
+            end
+            if sprayDir == 'down' then
+                if self.anim ~= walkAnim.front then self.anim = walkAnim.front end
+            end
+            if sprayDir == 'left' then
+                if self.anim ~= walkAnim.left then self.anim = walkAnim.left end
+            end
+            if sprayDir == 'right' then
+                if self.anim ~= walkAnim.right then self.anim = walkAnim.right end
+            end
+        end
     elseif state == states.walking.left or state == states.fishing.left then
         if self.anim ~= walkAnim.left then self.anim = walkAnim.left end
     elseif state == states.walking.right or state == states.fishing.right then

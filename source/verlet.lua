@@ -50,7 +50,7 @@ local castX, castY = 0, 0
 
 local co = nil -- coroutine
 
-local pointDistance = 15
+local pointDistance = 12
 
 local testing = false
 

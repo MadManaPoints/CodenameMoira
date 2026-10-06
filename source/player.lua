@@ -97,9 +97,7 @@ function Player:update()
         end
     end
 
-    if not self.isPlayerOne then
-        self:updateUI()
-    end
+    self:updateUI()
 
     -- Checkpoint --
     if self.ded then
