@@ -109,13 +109,15 @@ local minigame1 = false
 -- Bug Spray --
 local spray = nil
 local isSpraying = false
-local sprayDir = "left"
+local sprayDir = ""
 local sprayTimer = Timer(0.7)
 local newSprayTimer = nil
 local checkSpray = false
 local sprayFuel = 100
 local sprayEnergyBar
 local sprayUI
+
+
 
 
 class('P1').extends(Player)
@@ -230,7 +232,7 @@ function P1:climbManager()
             self.playerControl = false
             RopeHookX = info[1] + 10
             RopeHookY = info[2]
-            print("HOOKED" .. "  |  " .. RopeHookX .. "  |  " .. RopeHookY)
+            --print("HOOKED" .. "  |  " .. RopeHookX .. "  |  " .. RopeHookY)
 
             verletTest = Verlet(self.x, self.y, RopeHookX, RopeHookY)
             self:changeState(6, info[1] + 10, self.y, info[3])
@@ -242,7 +244,10 @@ function P1:climbManager()
             self:moveTo(x, self.y)
             local change, acceleratedChange = pd.getCrankChange()
             if self.y > self.minClimbRange then
-                if change > 30 then
+                if change > 15 then
+                    if verletTest ~= nil then
+                        verletTest:shakeTest()
+                    end
                     self:moveBy(0, -1.5)
                 end
             else
@@ -260,7 +265,10 @@ function P1:climbManager()
             end
 
             if self.y < self.maxClimbRange then
-                if change < -30 then
+                if change < -15 then
+                    if verletTest ~= nil then
+                        verletTest:shakeTest()
+                    end
                     self:moveBy(0, 2)
                 end
             else
@@ -384,21 +392,6 @@ function P1:sprayManager()
         local change, acceleratedChange = pd.getCrankChange()
         local cranking = change ~= 0 and (acceleratedChange > 2 or acceleratedChange < -2)
 
-        if crank >= 330 or crank <= 30 then
-            sprayDir = "up"
-        end
-
-        if crank > 60 and crank <= 120 then
-            sprayDir = "right"
-        end
-
-        if crank > 140 and crank <= 210 then
-            sprayDir = "down"
-        end
-
-        if crank > 240 and crank < 300 then
-            sprayDir = "left"
-        end
 
         -- Change direction of spray based on movement direction
         if sprayDir == "up" then
@@ -411,6 +404,10 @@ function P1:sprayManager()
             spray:changeDirection(self.x - 18, self.y)
         elseif sprayDir == "right" then
             spray:changeDirection(self.x + 18, self.y)
+        end
+
+        if isSpraying and pd.isCrankDocked() and sprayDir ~= "" then
+            sprayDir = ""
         end
 
         if sprayEnergyBar.current == sprayEnergyBar.max then
@@ -429,6 +426,22 @@ function P1:sprayManager()
 
         -- Show spray sprite if player is moving crank
         if cranking then
+            if crank >= 330 or crank <= 30 then
+                sprayDir = "up"
+            end
+
+            if crank > 60 and crank <= 120 then
+                sprayDir = "right"
+            end
+
+            if crank > 140 and crank <= 210 then
+                sprayDir = "down"
+            end
+
+            if crank > 240 and crank < 300 then
+                sprayDir = "left"
+            end
+
             if sprayEnergyBar.current > sprayEnergyBar.max then
                 sprayEnergyBar.current -= 1
             else
@@ -453,6 +466,7 @@ function P1:sprayManager()
             if spray:isVisible() then
                 spray:setVisible(false)
                 spray:setCollisionsEnabled(false)
+                sprayDir = ""
             end
         end
     end
@@ -666,23 +680,21 @@ end
 function P1:animationManager()
     if state == states.swinging then
         --nada
-    elseif isSpraying then
-        if sprayEnergyBar.current ~= sprayEnergyBar.max and pd.isCrankDocked() then
-            if self.anim ~= walkAnim.front then self.anim = walkAnim.front end
-        else
-            if sprayDir == "up" then
-                if self.anim ~= walkAnim.back then self.anim = walkAnim.back end
-            end
-            if sprayDir == 'down' then
-                if self.anim ~= walkAnim.front then self.anim = walkAnim.front end
-            end
-            if sprayDir == 'left' then
-                if self.anim ~= walkAnim.left then self.anim = walkAnim.left end
-            end
-            if sprayDir == 'right' then
-                if self.anim ~= walkAnim.right then self.anim = walkAnim.right end
-            end
+    elseif isSpraying and sprayDir ~= "" then
+        if sprayDir == "up" then
+            if self.anim ~= walkAnim.back then self.anim = walkAnim.back end
         end
+        if sprayDir == "down" then
+            if self.anim ~= walkAnim.front then self.anim = walkAnim.front end
+        end
+        if sprayDir == "left" then
+            if self.anim ~= walkAnim.left then self.anim = walkAnim.left end
+        end
+        if sprayDir == "right" then
+            if self.anim ~= walkAnim.right then self.anim = walkAnim.right end
+        end
+    elseif isSpraying and pd.isCrankDocked() then
+        if self.anim ~= walkAnim.front then self.anim = walkAnim.front end
     elseif state == states.walking.left or state == states.fishing.left then
         if self.anim ~= walkAnim.left then self.anim = walkAnim.left end
     elseif state == states.walking.right or state == states.fishing.right then

@@ -50,9 +50,11 @@ local castX, castY = 0, 0
 
 local co = nil -- coroutine
 
-local pointDistance = 12
+local pointDistance = 15
 
 local testing = false
+
+local updateSine = 0
 
 
 class('Verlet').extends(gfx.sprite)
@@ -140,7 +142,8 @@ function Verlet:update()
     else
         numberOfPoints = math.max(math.max(2, math.floor(distToTarget + 0.5)), math.max(2, totalPoints))
     end
-    print("#: " .. numberOfPoints .. "  |  " .. "Verlet: " .. #verletPoints)
+
+    --print("#: " .. numberOfPoints .. "  |  " .. "Verlet: " .. #verletPoints)
 
     -- Add or remove points
     if #verletPoints > numberOfPoints then
@@ -211,6 +214,14 @@ function Verlet:draw(x, y, width, height)
     end
 
     gfx.setColor(gfx.kColorWhite)
+end
+
+function Verlet:shakeTest()
+    if verletPoints[1] ~= nil then
+        verletPoints[1].ax = -0.01 + math.sin(updateSine) * 2
+
+        updateSine += 0.4
+    end
 end
 
 function Verlet:updateVerlet(p)
