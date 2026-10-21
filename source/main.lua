@@ -7,7 +7,7 @@ import "CoreLibs/math"
 import "CoreLibs/crank"
 import "CoreLibs/ui"
 
---my scripts
+-- MY SCRIPTS --
 import "verlet"
 import "manager"
 import "collider"
@@ -58,7 +58,7 @@ DemoEnd = false
 local climbX, climbY
 local reelX, reelY
 
-local swordTutorial = true
+local swordTutorial = false
 
 local verletTest = false
 
@@ -74,23 +74,26 @@ local function initialize()
 
     --local kayak = Kayak(200, 200)
     --local chopping = Chopping()
-    TwoPlayers = false
+
+    TwoPlayers = true
     --Manny = P1(150, 60, true, true)
-    --Manny = P1(startX, startY, true, true)
+    Manny = P1(startX, startY, false, true)
+    Tati = P2(startX, startY, false, false)
+
     --local abilityUI = AbilitySwitchUI()
-    Tati = P2(startX, startY, true, false)
+    local characterUI = CharacterSwitchUI()
 
     --local roomTest = Room("images/roomTest")
-    local firstRoom = 1
-    RoomID = firstRoom
-    local room1 = Room(firstRoom, "images/rooms/night1/room" .. tostring(firstRoom))
+    --local firstRoom = 1
+    --RoomID = firstRoom
+    --local room1 = Room(firstRoom, "images/rooms/night1/room" .. tostring(firstRoom))
     --[[GAME_MANAGER:switchScene
     (
         Room(5, "images/rooms/night1/room5", true), 140, 60,
         true
     ) --]]
 
-    local ui = UI(312, 0, 88, 44)
+    --local ui = UI(312, 0, 88, 44)
 
     --local co = coroutine.create(function() print("hi") end)
     --pd.ui.crankIndicator:draw()
@@ -148,9 +151,9 @@ function pd.update()
     --if fishing.canFish then
     --    gfx.drawText("START", 50, 50)
     --end
-    --if TwoPlayers and (pd.buttonJustPressed("B")) then
-    --    ChangePlaces()
-    --end
+    if TwoPlayers and (pd.buttonJustPressed("B")) then
+        --ChangePlaces()
+    end
 
     --- **DEBUGGING** ---
     --gfx.fillRect(0, 0, 80, 40)
@@ -255,20 +258,17 @@ end
 
 function ChangePlaces()
     -- switch characters and menu items
-    if Tati.following then
-        Tati.prevX, Tati.prevY = Manny.prevX, Manny.prevY
-        Tati:moveTo(Manny.x, Manny.y)
-
-        pd.getSystemMenu():removeAllMenuItems()
-        -- new menu items go here
-    else
-        Manny.prevX, Manny.prevY = Tati.prevX, Tati.prevY
+    if not PlayerOneActive then
         Manny:moveTo(Tati.x, Tati.y)
-
-        pd.getSystemMenu():removeAllMenuItems()
-        -- new menu items go here
+        Manny.prevX, Manny.prevY = Tati.prevX, Tati.prevY
+        Tati:moveTo(Tati.prevX, Tati.prevY)
+    else
+        Tati:moveTo(Manny.x, Manny.y)
+        Tati.prevX, Tati.prevY = Manny.prevX, Manny.prevY
+        Manny:moveTo(Manny.prevX, Manny.prevY)
     end
 
     Manny.following = not Manny.following
     Tati.following = not Tati.following
+    PlayerOneActive = not PlayerOneActive
 end

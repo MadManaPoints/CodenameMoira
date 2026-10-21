@@ -123,6 +123,7 @@ function UI:init(x, y, w, h)
 end
 
 function UI:update()
+    -- Slide UI when it needs to get out of the way
     if self:detectPlayer() or Manny ~= nil and
         (Manny.isClimbing and (Manny.y ~= Manny.minClimbRange and Manny.y ~= Manny.maxClimbRange)
             or (MinigameTrigger and PlayerOneActive) or Manny.reeling) then

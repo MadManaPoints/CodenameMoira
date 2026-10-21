@@ -118,8 +118,6 @@ local sprayEnergyBar
 local sprayUI
 
 
-
-
 class('P1').extends(Player)
 
 function P1:init(x, y, alone, isPlayerOne, currentDir)
@@ -184,18 +182,18 @@ function P1:movement(_goalX, _goalY)
     if self.alone == nil then
         -- lerp following player behind current player
         if self.currentDir == "up" then
-            self.prevY = pd.math.lerp(self.prevY, self.y + 16, 0.25)
+            self.prevY = pd.math.lerp(self.prevY, self.y + 12, 0.25)
             self.prevX = pd.math.lerp(self.prevX, self.x, 0.25)
         elseif self.currentDir == "down" then
-            self.prevY = pd.math.lerp(self.prevY, self.y - 16, 0.25)
+            self.prevY = pd.math.lerp(self.prevY, self.y - 12, 0.25)
             self.prevX = pd.math.lerp(self.prevX, self.x, 0.25)
         end
 
         if self.currentDir == "left" then
-            self.prevX = pd.math.lerp(self.prevX, self.x + 16, 0.25)
+            self.prevX = pd.math.lerp(self.prevX, self.x + 12, 0.25)
             self.prevY = pd.math.lerp(self.prevY, self.y, 0.25)
         elseif self.currentDir == "right" then
-            self.prevX = pd.math.lerp(self.prevX, self.x - 16, 0.25)
+            self.prevX = pd.math.lerp(self.prevX, self.x - 12, 0.25)
             self.prevY = pd.math.lerp(self.prevY, self.y, 0.25)
         end
     end

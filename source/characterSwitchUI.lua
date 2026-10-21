@@ -19,8 +19,11 @@ function CharacterSwitchUI:init()
     p2 = WorldObject(activeX, activeY, "images/characterCards/characterCard2", 11)
     p1:setScale(2, 2)
     p2:setScale(2, 2)
-    sp = SparkleParticle(100, 100)
-    sp:setScale(2, 2)
+
+    if not TwoPlayers then
+        sp = SparkleParticle(100, 100)
+        sp:setScale(2, 2)
+    end
 
     -- Set to invisible at start
     p1:setVisible(false)

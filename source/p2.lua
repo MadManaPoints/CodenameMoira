@@ -115,9 +115,11 @@ function P2:init(x, y, alone, isPlayerOne, currentDir, abilityOneEquipped)
     P2.super.init(self, x, y, alone, isPlayerOne, currentDir, abilityOneEquipped)
     --self:setCollideRect(17, 12, 13, 18) -- 48x48
 
-    swordUI = WorldObject(10, 240 - 36, "images/UI/swordStrengthUI", 10)
-    paddleUI = WorldObject(10, 204, "images/UI/swordUI", 11)
-    paddleUI:setScale(1.5, 1.5)
+    if not TwoPlayers then
+        swordUI = WorldObject(10, 240 - 36, "images/UI/swordStrengthUI", 10)
+        paddleUI = WorldObject(10, 204, "images/UI/swordUI", 11)
+        paddleUI:setScale(1.5, 1.5)
+    end
     --local paddleUI = WorldObject(12, 176, "images/UI/swordUI", 11)
     --local paddleUI = WorldObject(12, 232, "images/UI/swordUI", 11)
 
@@ -226,18 +228,18 @@ function P2:movement(_goalX, _goalY)
     if self.alone == nil then
         -- lerp following player behind current player
         if self.currentDir == "up" then
-            self.prevY = pd.math.lerp(self.prevY, self.y + 16, 0.25)
+            self.prevY = pd.math.lerp(self.prevY, self.y + 12, 0.25)
             self.prevX = pd.math.lerp(self.prevX, self.x, 0.25)
         elseif self.currentDir == "down" then
-            self.prevY = pd.math.lerp(self.prevY, self.y - 16, 0.25)
+            self.prevY = pd.math.lerp(self.prevY, self.y - 12, 0.25)
             self.prevX = pd.math.lerp(self.prevX, self.x, 0.25)
         end
 
         if self.currentDir == "left" then
-            self.prevX = pd.math.lerp(self.prevX, self.x + 16, 0.25)
+            self.prevX = pd.math.lerp(self.prevX, self.x + 12, 0.25)
             self.prevY = pd.math.lerp(self.prevY, self.y, 0.25)
         elseif self.currentDir == "right" then
-            self.prevX = pd.math.lerp(self.prevX, self.x - 16, 0.25)
+            self.prevX = pd.math.lerp(self.prevX, self.x - 12, 0.25)
             self.prevY = pd.math.lerp(self.prevY, self.y, 0.25)
         end
     end

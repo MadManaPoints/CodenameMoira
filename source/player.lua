@@ -32,6 +32,8 @@ function Player:init(x, y, alone, isPlayerOne, currentDir, abilityOneEquipped)
 
     self.isPlayerOne = isPlayerOne
 
+    -- Check for current ability to persist between scenes
+    -- (starts at ability one if current ability is not available)
     if abilityOneEquipped ~= nil then
         self.ability1 = abilityOneEquipped and true or false
         self.ability2 = abilityOneEquipped and true or false
@@ -39,17 +41,19 @@ function Player:init(x, y, alone, isPlayerOne, currentDir, abilityOneEquipped)
         self.ability1 = true
         self.ability2 = false
     end
+
+    -- Info stored when stepping on trigger colliders (more in Collider.lua)
     self.onTrigger = false
     self.triggerInfo = nil
 
-    self.anim = nil
+    self.anim = nil -- Animator (set in child scripts)
 
     -- Initialize follower variables if players are together in scene
     if not alone then
         if not isPlayerOne then
             self.following = false
             self:setCollidesWithGroups(1)
-            self.prevX = x + 32
+            self.prevX = x + 24
             self.prevY = y
         else
             self.following = true
@@ -64,16 +68,18 @@ function Player:init(x, y, alone, isPlayerOne, currentDir, abilityOneEquipped)
         self.alone = true
     end
 
-    local tag = isPlayerOne and 1 or 2
+    local tag = isPlayerOne and 1 or 2 -- Set tags used for collision responses
     self:setTag(tag)
-    self:setGroups(2)
+    self:setGroups(2)                  -- Groups are used during collision responses
     self:setZIndex(5)
 
+    -- One-time booleans used on first update frame
     self.abilityAdded = false
     self.roomEntered = false
 end
 
 function Player:update()
+    -- Check for button presses when entering room
     if not self.roomEntered then
         self.roomEntered = true
         local directionCheck = false
@@ -88,7 +94,8 @@ function Player:update()
         end
     end
 
-    if not self.abilityAdded then
+    -- Check and set current ability when entering room
+    if not self.abilityAdded and not TwoPlayers then
         self.abilityAdded = true
         if self.ability1 then
             self:abilityOne()
@@ -97,37 +104,47 @@ function Player:update()
         end
     end
 
-    self:updateUI()
+    -- Ability switch UI in upper right-hand corner
+    if not TwoPlayers then
+        self:updateUI()
+    end
 
     -- Checkpoint --
     if self.ded then
+        -- Move player to checkpoint position on death, then reset ded variable
         --self:swordManager()
         self:moveTo(CurrentCheckpointX, CurrentCheckpointY)
         if self.x == CurrentCheckpointX and self.y == CurrentCheckpointY then self.ded = false end
         return
     end
 
-    if not self.onLog then
+    if not self.onLog then      -- Animation is handled differently when p1 is on log
         self:setImage(self.anim:image())
-        self:animationManager()
-        if (PlayerOneActive and self.isPlayerOne) or (not PlayerOneActive and not self.isPlayerOne) then
+        self:animationManager() -- Updates animations based on player states
+
+        -- Item select for respective player (only during night time)
+        if not TwoPlayers and ((PlayerOneActive and self.isPlayerOne) or (not PlayerOneActive and not self.isPlayerOne)) then
             self:itemSelect()
         end
     end
 
     if not self.following then
         if self.alone then
+            -- Room 6 is minigame one. SwitchManager is added only during minigames
             if RoomID == 6 and (PlayerOneActive and self.isPlayerOne) or (not PlayerOneActive and not self.isPlayerOne) then
                 self:switchManager()
             end
 
+            -- Update abilities for respective players
             if (PlayerOneActive and self.isPlayerOne) or (not PlayerOneActive and not self.isPlayerOne) then
                 self:abilityManager()
             end
         end
 
+        -- Update rooms when player moves on screen
         self:switchRooms(self.x, self.y)
 
+        -- Prevent movement from updating when player control is false
         if not self.playerControl then
             return
         end
@@ -135,17 +152,22 @@ function Player:update()
         local goalX, goalY = self.x, self.y
 
         if (PlayerOneActive and self.isPlayerOne) or (not PlayerOneActive and not self.isPlayerOne) then
-            self:directionalInputs()
-            self:movement(goalX, goalY)
+            self:directionalInputs()    -- Update direction based on d-pad input
+            self:movement(goalX, goalY) -- Move player to new position (with collision)
         end
     else
+        if (not PlayerOneActive and self.isPlayerOne) or (PlayerOneActive and not self.isPlayerOne) then
+            self:switchManager()
+        end
+
+
         local goalX, goalY = self.x, self.y
-        self:followPartner(goalX, goalY)
+        self:followPartner(goalX, goalY) -- Follow currently selected player (without collision)
     end
 end
 
 function Player:directionalInputs()
-    -- detect most recent button pressed
+    -- Detect most recent button pressed
     for i, dir in ipairs(self.allDir) do
         if pd.buttonJustPressed(dir) then
             if not table.indexOfElement(self.heldDir, dir) then
@@ -161,27 +183,9 @@ function Player:directionalInputs()
     end
 end
 
-function Player:movement(_goalX, _goalY)
-
-end
-
-function Player:followPartner(_goalX, _goalY)
-
-end
-
-function Player:abilityManager()
-
-end
-
-function Player:animationManager()
-
-end
-
-function Player:updateUI()
-
-end
-
 function Player:switchManager()
+    if not MinigameTrigger and not TwoPlayers then return end -- Only run this code block if in minigame
+
     if pd.buttonJustPressed("B") and not canSwitch then
         local function switchTimerUp()
             canSwitch = true -- callback for when timer ends
@@ -191,11 +195,18 @@ function Player:switchManager()
     end
 
     if canSwitch and not Switching then
-        if not CharacterUIActive then CharacterUIActive = true end
+        -- Make character switch UI visible after B has been held for a short period of time
+        if MinigameTrigger or TwoPlayers then
+            if not CharacterUIActive then CharacterUIActive = true end
+        end
     end
+
     if canSwitch then
-        self.playerControl = false
-        Manny.halt = true
+        if MinigameTrigger then
+            -- Prevent players from moving when switching characters
+            self.playerControl = false
+            Manny.halt = true -- Needed to prevent movement on log during switch because movement is handled separately
+        end
     end
 
     -- While character icons are active, allow player to press any d-pad button to switch between them
@@ -203,9 +214,14 @@ function Player:switchManager()
             or pd.buttonJustPressed("Up") or pd.buttonJustPressed("Down")) and not Switching then
         Switching = true
 
-        ChangeActivePlayer()
+        if not TwoPlayers then
+            ChangeActivePlayer() -- Switch abilities and UI (night time)
+        else
+            ChangePlaces()       -- Switch places (day time)
+        end
     end
 
+    -- Prevent movement when exiting menu
     if pd.buttonJustReleased("B") then
         for i = 1, #self.heldDir do
             table.remove(self.heldDir, i)
@@ -221,8 +237,9 @@ function Player:switchManager()
 
         if CharacterUIActive then CharacterUIActive = false end
 
+        -- Return control to players unless player is on log (minigame 1)
         if not self.onLog and not self.playerControl then self.playerControl = true end
-        if MinigameTrigger and Manny.halt then Manny.halt = false end
+        if MinigameTrigger and Manny.halt then Manny.halt = false end -- Resume log movement
     end
 end
 
@@ -233,34 +250,6 @@ function Player:itemSelect()
     if self.ability1 and pd.buttonJustReleased("B") and not canSwitch then
         self:abilityTwo()
     end
-end
-
-function Player:abilityOne()
-
-end
-
-function Player:abilityTwo()
-
-end
-
-function Player:leftRoomCheck()
-
-end
-
-function Player:rightRoomCheck()
-
-end
-
-function Player:upRoomCheck()
-
-end
-
-function Player:rightRoomCheck()
-
-end
-
-function Player:roomCheck()
-
 end
 
 function Player:currentItemCheck()
@@ -358,4 +347,53 @@ function Player:collisionResponse(other)
             return 'overlap'
         end
     end
+end
+
+-- ***The follow functions are updated in child scripts***--
+function Player:movement(_goalX, _goalY)
+
+end
+
+function Player:followPartner(_goalX, _goalY)
+
+end
+
+function Player:abilityManager()
+
+end
+
+function Player:animationManager()
+
+end
+
+function Player:updateUI()
+
+end
+
+function Player:abilityOne()
+
+end
+
+function Player:abilityTwo()
+
+end
+
+function Player:leftRoomCheck()
+
+end
+
+function Player:rightRoomCheck()
+
+end
+
+function Player:upRoomCheck()
+
+end
+
+function Player:rightRoomCheck()
+
+end
+
+function Player:roomCheck()
+
 end
