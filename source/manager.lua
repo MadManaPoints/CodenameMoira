@@ -140,3 +140,40 @@ function Manager:loadMinigame(x1, y1, x2, y2, minigameNum)
 
     local ui = UI(312, 0, 88, 44)
 end
+
+--[[Source: https://www.youtube.com/watch?v=3LoMft137z8]] --
+
+---------------------------------------------------------
+--SCENE TRANSITIONS--
+---------------------------------------------------------
+
+--[[function Manager:startTransition()
+    local transitionTimer = self:fadeTransition(0, 1)
+
+    transitionTimer.timerEndedCallback = function()
+        transitionTimer = self:fadeTransition(1, 0)
+        transitionTimer.timerEndedCallback = function()
+            self.transitioning = false
+        end
+    end
+end
+
+function Manager:fadeTransition(startValue, endValue)
+    local transitionSprite = self:createTransitionSprite()
+    transitionSprite:setImage(self:getFadedImage(startValue))
+
+    local transitionTimer = pd.timer.new(self.transitionTime, startValue, endValue, pd.easingFunctions.inOutCubic)
+    transitionTimer.updateCallback = function(timer)
+        transitionSprite:setImage(self:getFadedImage(timer.value))
+    end
+    return transitionTimer
+end
+
+function Manager:getFadedImage(alpha)
+    local fadedImage = gfx.image.new(400, 240)
+    gfx.pushContext(fadedImage)
+    local filledRect = gfx.image.new(400, 240, gfx.kColorBlack)
+    filledRect:drawFaded(0, 0, alpha, gfx.image.kDitherTypeBayer8x8)
+    gfx.popContext()
+    return fadedImage
+end--]]

@@ -8,6 +8,7 @@ import "CoreLibs/crank"
 import "CoreLibs/ui"
 
 -- MY SCRIPTS --
+import "dialogue"
 import "verlet"
 import "manager"
 import "collider"
@@ -32,13 +33,52 @@ import "chopping"
 import "fishing"
 import "sword"
 
+--- OTHER SCRIPTS ---
+import "pdDialogue" --[[ Developed by: GammaGames, PizzaFuelDev and NickSr ]] --
+
 local pd <const> = playdate
 local gfx <const> = pd.graphics
+
+------------------------------------------------------------------
+--- DIALOGUE ---
+------------------------------------------------------------------
+Dialogue = nil
+local x, y = 5, 5
+
+function StartDialogue(text, _onClose)
+    local width, height = 390, 56
+
+    -- Create the box with the text and dimensions
+    local dialogue = pdDialogueBox(text, width, height)
+
+    -- Add input handlers from the helper function
+    pd.inputHandlers.push(dialogue:getInputHandlers())
+    -- Override the function to pop the handlers When the box closes
+    function dialogue:onClose()
+        _onClose()
+        playdate.inputHandlers.pop()
+    end
+
+    dialogue:enable()
+
+    return dialogue
+end
+
+local onDialogueEnd = function()
+    print "FIN"
+end
+
+Dialogue = StartDialogue(AllDialogue.Intro, onDialogueEnd)
+------------------------------------------------------------------
+------------------------------------------------------------------
 
 pd.startAccelerometer()
 
 GAME_MANAGER = Manager()
+DIALOGUE_MANAGER = DialogueSystem()
 Delta = 0
+
+local startDialogue = false
 
 local startX, startY = 368, 100
 CurrentCheckpointX = startX
@@ -60,6 +100,7 @@ local reelX, reelY
 
 local swordTutorial = false
 
+CloseDialogue = true
 local verletTest = false
 
 local function initialize()
@@ -77,11 +118,15 @@ local function initialize()
 
     TwoPlayers = true
     --Manny = P1(150, 60, true, true)
-    Manny = P1(startX, startY, false, true)
-    Tati = P2(startX, startY, false, false)
+
+    --Manny = P1(startX, startY, false, true)//
+    --Tati = P2(startX, startY, false, false)
 
     --local abilityUI = AbilitySwitchUI()
-    local characterUI = CharacterSwitchUI()
+
+    --local characterUI = CharacterSwitchUI()//
+
+    --local dialogueSystem = DialogueSystem()
 
     --local roomTest = Room("images/roomTest")
     --local firstRoom = 1
@@ -92,7 +137,7 @@ local function initialize()
         Room(5, "images/rooms/night1/room5", true), 140, 60,
         true
     ) --]]
-
+    --local testCol = DialogueTrigger(50, 50, 50, 50, AllDialogue.Intro)
     --local ui = UI(312, 0, 88, 44)
 
     --local co = coroutine.create(function() print("hi") end)
@@ -106,11 +151,23 @@ local function initialize()
 end
 
 local test = 0
+
+local function counter()
+    local i = 0
+
+    return function()
+        i += 1
+        return i
+    end
+end
+
+local c = counter()
 --local fishing = Fishing()
 
 --- **DEBUGGING** ---
 --gfx.setColor(gfx.kColorBlack)
 
+--pdDialogue.say("YERRrrrrrrrrrrrrRR")
 initialize()
 
 
@@ -118,9 +175,14 @@ function pd.update()
     gfx.clear()
     Delta = pd.getElapsedTime()
     pd.resetElapsedTime()
-
     gfx.sprite.update()
-    pd.timer.updateTimers();
+    pd.timer.updateTimers()
+
+    ---[[
+    if Dialogue.enabled then
+        Dialogue:update()
+        Dialogue:draw(x, y)
+    end --]]
 
     if verletTest then return end
 
@@ -206,39 +268,6 @@ function pd.update()
     end
     --P:drawGrid()
     --P:updatePath()
-
-
-    --[[if PlayerOneActive then
-        if Manny.isClimbing then
-            if Manny.triggerInfo ~= nil and climbX ~= Manny.triggerInfo[1] then
-                climbX = Manny.triggerInfo[1] + 10
-                climbY = Manny.triggerInfo[2]
-            end
-            gfx.setColor(gfx.kColorWhite)
-            gfx.setLineWidth(3)
-            gfx.drawLine(Manny.x, Manny.y - 10, climbX, climbY)
-            gfx.setColor(gfx.kColorBlack)
-            gfx.setLineWidth(1.5)
-            gfx.drawLine(Manny.x + 2, Manny.y - 10, climbX, climbY)
-            gfx.setColor(gfx.kColorWhite)
-        end
-
-
-        -- NOTE: This is messy and very temporary. I want to take a crack at a rope physics system at some point --
-        if Manny.reeling and not (MinigameTrigger and not minigameStart) and Manny.onLog and not DemoEnd then
-            gfx.setColor(gfx.kColorWhite)
-            gfx.setLineWidth(3)
-            local targetOffsetX = MinigameTrigger and 7 or 10
-            local targetOffsetY = 5
-            gfx.drawLine(Manny.x, Manny.y, Manny.currentCastTargetX + targetOffsetX,
-                Manny.currentCastTargetY + targetOffsetY)
-            gfx.setColor(gfx.kColorBlack)
-            gfx.setLineWidth(1.5)
-            gfx.drawLine(Manny.x + 2, Manny.y, Manny.currentCastTargetX + targetOffsetX,
-                Manny.currentCastTargetY + targetOffsetY)
-            gfx.setColor(gfx.kColorWhite)
-        end
-    end--]]
 end
 
 function SwitchPlayer()
@@ -268,7 +297,13 @@ function ChangePlaces()
         Manny:moveTo(Manny.prevX, Manny.prevY)
     end
 
-    Manny.following = not Manny.following
-    Tati.following = not Tati.following
+    Manny.following, Tati.following = Tati.following, Manny.following
+
+    --Manny.following = not Manny.following
+    --Tati.following = not Tati.following
     PlayerOneActive = not PlayerOneActive
+end
+
+function DrawDialogue(text)
+    DIALOGUE_MANAGER:revealText(text)
 end

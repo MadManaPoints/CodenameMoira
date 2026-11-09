@@ -202,6 +202,24 @@ function Exit:exitResponse(playerOne)
     end
 end
 
+DialogueTrigger = {}
+
+class('DialogueTrigger').extends(Trigger)
+
+function DialogueTrigger:init(x, y, w, h, text)
+    DialogueTrigger.super.init(self, x, y, w, h)
+    self.dialogue = text
+    self.start = false
+end
+
+function DialogueTrigger:update()
+    if self:detectPlayer() and not self.start then
+        self.start = true
+        Dialogue = self.dialogue
+        print("wutttttttt")
+    end
+end
+
 Spray = {}
 
 class('Spray').extends(Collider)
