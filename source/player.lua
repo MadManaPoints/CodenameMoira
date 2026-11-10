@@ -145,7 +145,7 @@ function Player:update()
         self:switchRooms(self.x, self.y)
 
         -- Prevent movement from updating when player control is false
-        if not self.playerControl then
+        if not self.playerControl or Dialogue ~= nil then
             return
         end
 
@@ -259,26 +259,30 @@ end
 function Player:switchRooms(x, y)
     -- loop through all rooms and choose next room based on where player exits
     if x < 0 then
-        for k, r in pairs(Trackers.night.night1.rooms) do
+        for k, r in pairs(Trackers.day.day1.rooms) do
             if r.id == RoomID then
+                local _y
+                if TwoPlayers then _y = PlayerOneActive and Manny.y or Tati.y end
                 self:roomCheck()
                 GAME_MANAGER:switchScene
                 (
-                    Room(r.left, "images/rooms/night1/room" .. tostring(r.left)), enterRight, y,
-                    self.isPlayerOne, self.currentDir, self:currentItemCheck()
+                    Room(r.left, "images/rooms/" .. CurrentTime .. tostring(CurrentDay) .. "/room" .. tostring(r.left)),
+                    enterRight, y, true, self.isPlayerOne, self.currentDir, self:currentItemCheck()
                 )
                 break
             end
         end
     end
+
     if x > 400 then
-        for k, r in pairs(Trackers.night.night1.rooms) do
+        for k, r in pairs(Trackers.day.day1.rooms) do
             if r.id == RoomID then
                 self:roomCheck()
                 GAME_MANAGER:switchScene
                 (
-                    Room(r.right, "images/rooms/night1/room" .. tostring(r.right)), enterLeft, y,
-                    self.isPlayerOne, self.currentDir, self:currentItemCheck()
+                    Room(r.right, "images/rooms/" .. CurrentTime .. tostring(CurrentDay) .. "/room" .. tostring(r.right)),
+                    enterLeft, y,
+                    true, self.isPlayerOne, self.currentDir, self:currentItemCheck()
                 )
                 break
             end
@@ -292,8 +296,9 @@ function Player:switchRooms(x, y)
                 GAME_MANAGER:switchScene
                 (
                     Room(r.up, "images/rooms/night1/room" .. tostring(r.up)), newX, enterBottom,
-                    self.isPlayerOne, self.currentDir, self:currentItemCheck()
+                    nil, self.isPlayerOne, self.currentDir, self:currentItemCheck()
                 )
+                break
             end
         end
     end
@@ -309,21 +314,21 @@ function Player:switchRooms(x, y)
                     PlayerOneActive = true
                     GAME_MANAGER:switchScene
                     (
-                        Room(1, "images/rooms/night1/room1"), 368, 100, self.isPlayerOne
+                        Room(1, "images/rooms/night1/room1"), 368, 100, nil, self.isPlayerOne
                     )
                     break
                 elseif r.id == 3 then
                     GAME_MANAGER:switchScene
                     (
                         Room(r.down, "images/rooms/night1/room" .. tostring(r.down), true), newX, enterTop,
-                        self.isPlayerOne
+                        nil, self.isPlayerOne
                     )
                     break
                 else
                     GAME_MANAGER:switchScene
                     (
                         Room(r.down, "images/rooms/night1/room" .. tostring(r.down)), newX, enterTop,
-                        self.isPlayerOne, self.currentDir, self:currentItemCheck()
+                        nil, self.isPlayerOne, self.currentDir, self:currentItemCheck()
                     )
                     break
                 end

@@ -5,6 +5,8 @@ class('Dialogue').extends()
 
 AllDialogue =
 {
+    Test = [[Yerrr!
+Press A to skip to room.]],
 
     Intro = [[Moira, wake up. We're almost there.
 
@@ -29,12 +31,16 @@ Did you know trees communicate through underground fungal networks that--
 
 --Not what I meant.
 
-It just feels like they're watching us, like in a parade. Walls of spectators on either side.
+It just feels like they're watching us.
 
 Don't say that! You'll freak me out.
 Ugh, why did we leave so late?
 
 I did say you should call out of work.
+
+Hey, you know the rules. No bringing up work on our trip. We're here to get away.
+
+You're right. Screw work.
 
 Campsite's coming up now.
 

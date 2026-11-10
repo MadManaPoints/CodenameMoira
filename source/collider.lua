@@ -206,17 +206,45 @@ DialogueTrigger = {}
 
 class('DialogueTrigger').extends(Trigger)
 
-function DialogueTrigger:init(x, y, w, h, text)
+function DialogueTrigger:init(x, y, w, h, text, onPress, reuseable, exit)
     DialogueTrigger.super.init(self, x, y, w, h)
+    self.timer = nil
     self.dialogue = text
+    self.onPress = onPress
+    self.reuseable = reuseable
+    self.exit = exit
     self.start = false
 end
 
 function DialogueTrigger:update()
-    if self:detectPlayer() and not self.start then
+    if self:detectPlayer() then
+        if self.onPress then self:press() else self:autoStart() end
+    end
+end
+
+function DialogueTrigger:press()
+    -- Start dialogue after press
+    if pd.buttonJustPressed(pd.kButtonA) and not self.start then
         self.start = true
-        Dialogue = self.dialogue
-        print("wutttttttt")
+        if Dialogue == nil then
+            local function loop()
+                -- Dialogue reset goes in timer so it won't get stuck in a loop
+                local function pressCallback()
+                    self.start = false -- Set to false after completion
+                end
+
+                self.timer = pd.timer.new(100, pressCallback) -- Create timer to reset dialogue
+            end
+            Dialogue = StartDialogue(self.dialogue, loop)     -- Add dialogue
+        end
+    end
+end
+
+function DialogueTrigger:autoStart()
+    -- Auto trigger dialogue
+    if not self.start then
+        self.start = true
+        Dialogue = StartDialogue(self.dialogue, self.exit) -- Add dialogue
     end
 end
 

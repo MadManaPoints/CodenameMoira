@@ -28,7 +28,7 @@ import "abilitySwitchUI"
 import "room"
 import "pathfinding"
 import "enemy"
-import "kayak"
+import "canoe"
 import "chopping"
 import "fishing"
 import "sword"
@@ -55,8 +55,9 @@ function StartDialogue(text, _onClose)
     pd.inputHandlers.push(dialogue:getInputHandlers())
     -- Override the function to pop the handlers When the box closes
     function dialogue:onClose()
-        _onClose()
         playdate.inputHandlers.pop()
+        _onClose()
+        Dialogue = nil
     end
 
     dialogue:enable()
@@ -65,17 +66,25 @@ function StartDialogue(text, _onClose)
 end
 
 local onDialogueEnd = function()
-    print "FIN"
+    CurrentDay += 1
+    ---[[
+    GAME_MANAGER:switchScene
+    (
+        Room(1, "images/rooms/day1/room1"), 200, 200, true, false
+    ) --]]
 end
 
-Dialogue = StartDialogue(AllDialogue.Intro, onDialogueEnd)
+Dialogue = StartDialogue(AllDialogue.Test, onDialogueEnd)
 ------------------------------------------------------------------
 ------------------------------------------------------------------
 
 pd.startAccelerometer()
 
 GAME_MANAGER = Manager()
-DIALOGUE_MANAGER = DialogueSystem()
+
+CurrentDay = 0
+CurrentTime = "day"
+RoomID = 0 -- = 1 --firstRoom
 Delta = 0
 
 local startDialogue = false
@@ -113,7 +122,7 @@ local function initialize()
     textSprite:moveTo(200, 20)
     textSprite:add()--]]
 
-    --local kayak = Kayak(200, 200)
+    --local canoe = Canoe(200, 200)
     --local chopping = Chopping()
 
     TwoPlayers = true
@@ -126,13 +135,11 @@ local function initialize()
 
     --local characterUI = CharacterSwitchUI()//
 
-    --local dialogueSystem = DialogueSystem()
-
     --local roomTest = Room("images/roomTest")
     --local firstRoom = 1
-    --RoomID = firstRoom
     --local room1 = Room(firstRoom, "images/rooms/night1/room" .. tostring(firstRoom))
-    --[[GAME_MANAGER:switchScene
+    --[[
+    GAME_MANAGER:switchScene
     (
         Room(5, "images/rooms/night1/room5", true), 140, 60,
         true
@@ -167,7 +174,6 @@ local c = counter()
 --- **DEBUGGING** ---
 --gfx.setColor(gfx.kColorBlack)
 
---pdDialogue.say("YERRrrrrrrrrrrrrRR")
 initialize()
 
 
@@ -179,10 +185,13 @@ function pd.update()
     pd.timer.updateTimers()
 
     ---[[
-    if Dialogue.enabled then
+    if Dialogue ~= nil and Dialogue.enabled then
         Dialogue:update()
         Dialogue:draw(x, y)
-    end --]]
+    else
+        pdDialogue.update()
+    end
+    --]]
 
     if verletTest then return end
 
@@ -302,8 +311,4 @@ function ChangePlaces()
     --Manny.following = not Manny.following
     --Tati.following = not Tati.following
     PlayerOneActive = not PlayerOneActive
-end
-
-function DrawDialogue(text)
-    DIALOGUE_MANAGER:revealText(text)
 end

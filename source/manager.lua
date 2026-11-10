@@ -5,10 +5,58 @@ Manager = {}
 
 Trackers =
 {
-    ["day"] = {},
-    ["night"] =
+    day =
     {
-        ["night1"] =
+        day1 =
+        {
+            rooms =
+            {
+                room1 =
+                {
+                    id = 1,
+                    up = 5,
+                    down = 2,
+                    right = 3,
+                    left = 4
+                },
+                room4 =
+                {
+                    id = 4,
+                    up = nil,
+                    down = nil,
+                    right = 1,
+                    left = nil
+                }
+            },
+
+            canoeing =
+            {
+                canoe1 =
+                {
+                    id = 1,
+                    up = 2
+                },
+
+                canoe2 =
+                {
+                    id = 2,
+                    up = 3,
+                    down = 4
+                },
+
+                canoe3 =
+                {
+                    id = 3,
+                    down = 4
+                }
+            }
+
+        }
+
+    },
+    night =
+    {
+        night1 =
         {
             ["rooms"] =
             {
@@ -82,9 +130,9 @@ RoomTracker = {
 
 class('Manager').extends()
 
-function Manager:switchScene(scene, x, y, isPlayerOne, currentDir, roomCheck)
+function Manager:switchScene(scene, x, y, ...)
     self.room = scene
-    self:loadNewScene(x, y, isPlayerOne, currentDir, roomCheck)
+    self:loadNewScene(x, y, ...)
 end
 
 function Manager:startMinigame(minigameNum)
@@ -94,30 +142,43 @@ function Manager:startMinigame(minigameNum)
         x2 = 50; y2 = 30
 
         self.room = Room(6, "images/rooms/night1/room6Table/room6-table-1", true)
+
+        if Tati ~= nil then
+            Tati:roomCheck()
+        end
     end
 
-    if Tati ~= nil then
-        Tati:roomCheck()
-    end
+
     self:loadMinigame(x1, y1, x2, y2, minigameNum)
 end
 
-function Manager:loadNewScene(x, y, isPlayerOne, currentDir, roomCheck)
+function Manager:loadNewScene(x, y, addBothPlayers, isPlayerOne, currentDir, roomCheck)
     gfx.sprite.removeAll() -- clear sprites before drawing new scene
     self.room:add()        -- adds scene set as argument in transition
+
+    if x == nil then return end
 
     -- Update player checkpoint
     CurrentCheckpointX = x
     CurrentCheckpointY = y
 
-    -- Add current player to scene
-    if not isPlayerOne then
-        Tati = P2(x, y, true, false, currentDir, roomCheck)
-    else
-        Manny = P1(x, y, true, true, currentDir, roomCheck)
-    end
+    if addBothPlayers then
+        Manny = P1(x, y, false, true, currentDir)
+        Tati = P2(x, y, false, false, currentDir)
 
-    local ui = UI(312, 0, 88, 44)
+        if CurrentDay == 3 then
+            local ui = UI(312, 0, 88, 44)
+        end
+    else
+        -- Add current player to scene
+        if not isPlayerOne then
+            Tati = P2(x, y, true, false, currentDir, roomCheck)
+        else
+            Manny = P1(x, y, true, true, currentDir, roomCheck)
+        end
+
+        local ui = UI(312, 0, 88, 44)
+    end
 end
 
 function Manager:loadMinigame(x1, y1, x2, y2, minigameNum)
@@ -139,6 +200,30 @@ function Manager:loadMinigame(x1, y1, x2, y2, minigameNum)
     end
 
     local ui = UI(312, 0, 88, 44)
+end
+
+function Manager:loadActivity(minigameNum)
+    gfx.sprite.removeAll()
+
+
+    if minigameNum == 1 then
+        self.room = Room(1, "images/rooms/canoeing/canoeMap1", nil, true)
+        local canoe = Canoe(200, 700)
+    end
+
+    if minigameNum == 2 then
+        self.room = Room(4, "images/rooms/canoeing/room4")
+    end
+
+    self.room:add()
+end
+
+function Manager:canoeSwitch(scene)
+    self.room = scene
+    gfx.sprite.removeAll()
+    local canoe = Canoe(200, 200)
+    canoe:getRoom(self.room)
+    self.room:add()
 end
 
 --[[Source: https://www.youtube.com/watch?v=3LoMft137z8]] --
