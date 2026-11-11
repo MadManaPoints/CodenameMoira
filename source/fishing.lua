@@ -18,10 +18,15 @@ local reelCastThreshold = 1.7
 
 function Fishing:init()
     self.fishingStarted = false
+    self.test = false
     self:add()
 end
 
 function Fishing:update()
+    if not self.test then
+        print("WE OUTSIDE")
+        self.test = true
+    end
     local crank = pd.getCrankPosition()
     local crankR = math.rad(crank)
     local change, acceleratedChange = pd.getCrankChange()
@@ -76,19 +81,24 @@ function Fishing:update()
     ---NOTE: currently there's no detection for reeling before fishing timer goes off---
 
     -- alter player that fish has taken the bait
-    if fishingTimer.timeout and not reeling then
+    --if fishingTimer.timeout and not reeling then
+    if whoosh then
         print("REEL 'EM IN")
         reeling = true
     end
 
     -- reduce Reel Health using crank speed
     if reeling then
-        if reelHealth <= 0 then
+        if reelHealth > 0 then
             if change < 0 then
                 reelHealth += acceleratedChange * 0.005
             end
-        else
+        elseif Dialogue == nil then
+            local function exit()
+                GAME_MANAGER:switchScene(Room(4, "images/rooms/day1/room4"), 250, 180, true, false)
+            end
             -- reveal fish once Reel Health reaches 0
+            Dialogue = StartDialogue("YOU CAUGHT A FISH!", exit)
             print("GOT 'EM")
         end
     end

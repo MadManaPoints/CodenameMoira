@@ -72,12 +72,43 @@ function Room:updateColliders()
         --- LEVEL ONE (DAY) ---
         if CurrentTime == "day" then
             if self.roomNumber == 1 then
+                local bramble1 = Breakable(370, 140, 1, Trackers.day.day1.rooms.room1.brambles[1])
+                local bramble2 = Breakable(370, 161, 2, Trackers.day.day1.rooms.room1.brambles[2])
+            end
 
+            if self.roomNumber == 2 then
+                -- Parking space
+            end
+
+            if self.roomNumber == 3 then
+                -- Field
+                local function addCarrot()
+                    Trackers.day.day1.rooms.room1.carrot = true
+                end
+
+                -- Text for when player pulls carrots
+                local carrotTrigger = DialogueTrigger
+                    (
+                        300, 100, 20, 20, "This shit looks delicious!", true, false, addCarrot
+                    )
             end
 
             if self.roomNumber == 4 then
                 local function exit() -- Called after minigame dialogue on the shore
-                    GAME_MANAGER:canoeSwitch(Room(20, "images/rooms/canoeing/canoeMap1", nil, true))
+                    --GAME_MANAGER:canoeSwitch(Room(20, "images/rooms/canoeing/canoeMap1", nil, true))
+
+                    for i = 1, 2 do -- Destroy brambles at campsite after minigame
+                        Trackers.day.day1.rooms.room1.brambles[i] = true
+                    end
+
+                    --GAME_MANAGER:switchScene(Room(1, "images/rooms/day1/room1"), 200, 200, true, false)
+
+                    -- Fishing minigame testing --
+                    ---[[
+                    GAME_MANAGER:switchScene(Room(21, "images/rooms/canoeing/room4", nil, nil))
+                    gfx.setDrawOffset(0, 0) -- Reset 'camera'
+                    local fishing = Fishing()
+                    --]]
                 end
 
                 -- Enter canoe scene after this dialogue
@@ -97,6 +128,7 @@ function Room:updateColliders()
                 local function exit()       -- Called after minigame dialogue in canoe
                     GAME_MANAGER:switchScene(Room(21, "images/rooms/canoeing/room4", nil, nil))
                     gfx.setDrawOffset(0, 0) -- Reset 'camera'
+                    local fishing = Fishing()
                 end
 
                 local minigameTrigger = DialogueTrigger

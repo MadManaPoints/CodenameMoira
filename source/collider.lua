@@ -230,7 +230,9 @@ function DialogueTrigger:press()
             local function loop()
                 -- Dialogue reset goes in timer so it won't get stuck in a loop
                 local function pressCallback()
-                    self.start = false -- Set to false after completion
+                    if self.reuseable then
+                        self.start = false -- Set to false after completion
+                    end
                 end
 
                 self.timer = pd.timer.new(100, pressCallback) -- Create timer to reset dialogue

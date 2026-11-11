@@ -290,13 +290,16 @@ function Player:switchRooms(x, y)
     end
     if y < 0 then
         local newX = x
-        for k, r in pairs(Trackers.night.night1.rooms) do
+        for k, r in pairs(Trackers.day.day1.rooms) do
             if r.id == RoomID then
                 self:roomCheck()
                 GAME_MANAGER:switchScene
                 (
-                    Room(r.up, "images/rooms/night1/room" .. tostring(r.up)), newX, enterBottom,
-                    nil, self.isPlayerOne, self.currentDir, self:currentItemCheck()
+                --[[Room(r.up, "images/rooms/" .. CurrentTime .. tostring(CurrentDay) .. "/room" .. tostring(r.up)),
+                    newX, enterBottom, nil, self.isPlayerOne, self.currentDir, self:currentItemCheck()
+                    --]]
+                    Room(r.up, "images/rooms/" .. CurrentTime .. tostring(CurrentDay) .. "/room" .. tostring(r.up)),
+                    newX, enterBottom, true, self.isPlayerOne, self.currentDir, self:currentItemCheck()
                 )
                 break
             end
@@ -304,7 +307,7 @@ function Player:switchRooms(x, y)
     end
     if y > 240 then
         local newX = x
-        for k, r in pairs(Trackers.night.night1.rooms) do
+        for k, r in pairs(Trackers.day.day1.rooms) do
             if r.id == RoomID then
                 self:roomCheck()
                 if r.id == 4 then
@@ -327,8 +330,14 @@ function Player:switchRooms(x, y)
                 else
                     GAME_MANAGER:switchScene
                     (
-                        Room(r.down, "images/rooms/night1/room" .. tostring(r.down)), newX, enterTop,
-                        nil, self.isPlayerOne, self.currentDir, self:currentItemCheck()
+                    --[[
+                        Room(r.down,
+                            "images/rooms/" .. CurrentTime .. tostring(CurrentDay) .. "/room" .. tostring(r.down)),
+                        newX, enterTop, nil, self.isPlayerOne, self.currentDir, self:currentItemCheck()
+                        --]]
+                        Room(r.down,
+                            "images/rooms/" .. CurrentTime .. tostring(CurrentDay) .. "/room" .. tostring(r.down)),
+                        newX, enterTop, true, self.isPlayerOne, self.currentDir, self:currentItemCheck()
                     )
                     break
                 end

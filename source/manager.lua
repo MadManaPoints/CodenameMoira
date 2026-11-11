@@ -17,8 +17,29 @@ Trackers =
                     up = 5,
                     down = 2,
                     right = 3,
-                    left = 4
+                    left = 4,
+                    brambles = { false, false },
+                    carrot = false
                 },
+
+                room2 =
+                {
+                    id = 2,
+                    up = 1,
+                    down = nil,
+                    right = nil,
+                    left = nil,
+                },
+
+                room3 =
+                {
+                    id = 3,
+                    up = nil,
+                    down = nil,
+                    right = nil,
+                    left = 1,
+                },
+
                 room4 =
                 {
                     id = 4,
