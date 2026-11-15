@@ -125,10 +125,10 @@ function Sword:collisionResponse(other)
 end
 
 function Sword:map(value, minA, maxA, minB, maxB)
-    local range = maxA - minA;
-    local valuePercent = (value - minA) / range;
+    local range = maxA - minA
+    local valuePercent = (value - minA) / range
 
-    local newRange = maxB - minB;
+    local newRange = maxB - minB
 
-    return valuePercent * newRange + minB;
+    return valuePercent * newRange + minB
 end

@@ -29,12 +29,15 @@ import "room"
 import "pathfinding"
 import "enemy"
 import "canoe"
+import "ladle"
 import "chopping"
+import "flashlight"
 import "fishing"
 import "sword"
 
 --- OTHER SCRIPTS ---
 import "pdDialogue" --[[ Developed by: GammaGames, PizzaFuelDev and NickSr ]] --
+import "fluid"
 
 local pd <const> = playdate
 local gfx <const> = pd.graphics
@@ -72,6 +75,7 @@ local onDialogueEnd = function()
     (
         Room(1, "images/rooms/day1/room1"), 200, 200, true, false
     ) --]]
+    --GAME_MANAGER:cookingSwitch(Room(21, ""))
 end
 
 Dialogue = StartDialogue(AllDialogue.Test, onDialogueEnd)
@@ -157,8 +161,6 @@ local function initialize()
     --local verlet = Verlet(200, 80, 350, 200)
 end
 
-local test = 0
-
 local function counter()
     local i = 0
 
@@ -176,6 +178,10 @@ local c = counter()
 
 initialize()
 
+-- FLUID TEST --
+fluid = Fluid.new(100, 75, 200, 150)
+FluidTest = false
+
 
 function pd.update()
     gfx.clear()
@@ -183,6 +189,12 @@ function pd.update()
     pd.resetElapsedTime()
     gfx.sprite.update()
     pd.timer.updateTimers()
+
+    if FluidTest then
+        fluid:update()
+        --print(fluid.bounds.x)
+        Draw()
+    end
 
     ---[[
     if Dialogue ~= nil and Dialogue.enabled then
@@ -277,6 +289,14 @@ function pd.update()
     end
     --P:drawGrid()
     --P:updatePath()
+end
+
+function Draw()
+    gfx.setColor(gfx.kColorWhite)
+    fluid:fill()
+    gfx.setColor(gfx.kColorBlack)
+    gfx.setDitherPattern(0.5)
+    fluid:fill()
 end
 
 function SwitchPlayer()

@@ -19,7 +19,7 @@ Trackers =
                     right = 3,
                     left = 4,
                     brambles = { false, false },
-                    carrot = false
+                    carrot = true
                 },
 
                 room2 =
@@ -46,6 +46,15 @@ Trackers =
                     up = nil,
                     down = nil,
                     right = 1,
+                    left = nil
+                },
+
+                room5 =
+                {
+                    id = 5,
+                    up = nil,
+                    down = nil,
+                    right = nil,
                     left = nil
                 }
             },
@@ -245,6 +254,48 @@ function Manager:canoeSwitch(scene)
     local canoe = Canoe(200, 200)
     canoe:getRoom(self.room)
     self.room:add()
+end
+
+function Manager:cookingSwitch(scene)
+    self.room = scene
+    gfx.sprite.removeAll()
+    local chopChop = Chopping()
+    self.room:add()
+end
+
+function Manager:stirringSwitch(scene)
+    self.room = scene
+    gfx.sprite.removeAll()
+    self.room:add()
+    local ladle = Ladle()
+    FluidTest = true
+end
+
+function Manager:flashlightSwitch(num)
+    if num == 1 then
+        -- Test --
+        local room = Room(23, "images/forest")
+        room:setZIndex(31)
+        ---[[
+        GAME_MANAGER:switchScene
+        (
+            room
+        ) --]]
+
+        local flashlight = Flashlight(60)
+    end
+end
+
+function Manager:enterTent(num)
+    if num == 1 then
+        FluidTest = false
+        gfx.sprite.removeAll()
+        local function exit()
+            self:flashlightSwitch(1)
+        end
+
+        Dialogue = StartDialogue("That shit was delicious!", exit)
+    end
 end
 
 --[[Source: https://www.youtube.com/watch?v=3LoMft137z8]] --

@@ -227,7 +227,7 @@ function Player:switchManager()
             table.remove(self.heldDir, i)
         end
 
-        if not canSwitch then
+        if not canSwitch and newSwitchTimer ~= nil then
             newSwitchTimer:remove() -- remove timer if player released B button before callback
         end
 

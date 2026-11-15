@@ -15,11 +15,19 @@ class('Chopping').extends(gfx.sprite)
 
 function Chopping:init()
     self:moveTo(200, 140)
-
     self:add()
 end
 
 function Chopping:update()
+    -- TESTING PURPOSES ONLY --
+    if pd.buttonJustPressed(pd.kButtonB) then
+        local function exit()
+            GAME_MANAGER:stirringSwitch(Room(22, ""))
+        end
+
+        Dialogue = StartDialogue("Time to stir.", exit)
+    end
+
     local crank = pd.getCrankPosition()
     local change, acceleratedChange = pd.getCrankChange()
     local gravityX, gravityY, gravityZ = pd.readAccelerometer()
@@ -27,6 +35,7 @@ function Chopping:update()
     self:setImage(carrotSprite:getImage(chopIndex))
 
     if gravityZ >= 0.6 then
+        print(crank)
         -- allow chop when crank is slightly raised while flat
         if not canChop and crank >= 200 and crank <= 250 then
             canChop = true

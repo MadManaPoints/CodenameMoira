@@ -33,7 +33,7 @@ function Room:init(roomNum, img, isAnimated, canoeRoom)
     end
     self.createRoom = false
     self:setZIndex(1)
-    self:add()
+    --self:add()
 end
 
 function Room:update()
@@ -74,6 +74,17 @@ function Room:updateColliders()
             if self.roomNumber == 1 then
                 local bramble1 = Breakable(370, 140, 1, Trackers.day.day1.rooms.room1.brambles[1])
                 local bramble2 = Breakable(370, 161, 2, Trackers.day.day1.rooms.room1.brambles[2])
+
+                if Trackers.day.day1.rooms.room1.carrot then
+                    local function enterMinigame()
+                        GAME_MANAGER:cookingSwitch(Room(21, ""))
+                    end
+
+                    local cookingTrigger = DialogueTrigger
+                        (
+                            200, 180, 20, 20, "Let's eat, dawg!", false, false, enterMinigame
+                        )
+                end
             end
 
             if self.roomNumber == 2 then
@@ -84,6 +95,7 @@ function Room:updateColliders()
                 -- Field
                 local function addCarrot()
                     Trackers.day.day1.rooms.room1.carrot = true
+                    print("CARROT ADDED")
                 end
 
                 -- Text for when player pulls carrots
