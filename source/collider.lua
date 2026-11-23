@@ -250,6 +250,19 @@ function DialogueTrigger:autoStart()
     end
 end
 
+WaterObstacle = {}
+
+class('WaterObstacle').extends(Trigger)
+
+function WaterObstacle:init(x, y, w, h)
+    WaterObstacle.super.init(self, x, y, w, h)
+    self:setCenter(0.5, 0.5)
+end
+
+function WaterObstacle:update()
+    -- Overriding the other jazz
+end
+
 Spray = {}
 
 class('Spray').extends(Collider)

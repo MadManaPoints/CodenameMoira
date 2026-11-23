@@ -72,3 +72,17 @@ function SparkleParticle:update()
         self:setVisible(false)
     end
 end
+
+AnimatedObject = {}
+
+class('AnimatedObject').extends(WorldObject)
+
+function AnimatedObject:init(x, y, table)
+    AnimatedObject.super.init(self, x, y)
+    local _table = gfx.imagetable.new(table)
+    self.anim = gfx.animation.loop.new(200, _table, true)
+end
+
+function AnimatedObject:update()
+    self:setImage(self.anim:image())
+end

@@ -107,7 +107,7 @@ function Room:updateColliders()
 
             if self.roomNumber == 4 then
                 local function exit() -- Called after minigame dialogue on the shore
-                    --GAME_MANAGER:canoeSwitch(Room(20, "images/rooms/canoeing/canoeMap1", nil, true))
+                    GAME_MANAGER:canoeSwitch(Room(20, "images/rooms/canoeing/canoeMap1", nil, true))
 
                     for i = 1, 2 do -- Destroy brambles at campsite after minigame
                         Trackers.day.day1.rooms.room1.brambles[i] = true
@@ -116,7 +116,7 @@ function Room:updateColliders()
                     --GAME_MANAGER:switchScene(Room(1, "images/rooms/day1/room1"), 200, 200, true, false)
 
                     -- Fishing minigame testing --
-                    ---[[
+                    --[[
                     GAME_MANAGER:switchScene(Room(21, "images/rooms/canoeing/room4", nil, nil))
                     gfx.setDrawOffset(0, 0) -- Reset 'camera'
                     local fishing = Fishing()
@@ -136,17 +136,8 @@ function Room:updateColliders()
                     )
             end
 
-            if self.roomNumber == 20 then   -- Canoeing minigame
-                local function exit()       -- Called after minigame dialogue in canoe
-                    GAME_MANAGER:switchScene(Room(21, "images/rooms/canoeing/room4", nil, nil))
-                    gfx.setDrawOffset(0, 0) -- Reset 'camera'
-                    local fishing = Fishing()
-                end
+            if self.roomNumber == 20 then -- Canoeing minigame
 
-                local minigameTrigger = DialogueTrigger
-                    (
-                        200, -300, 20, 20, "This looks like a good spot.", false, false, exit
-                    )
             end
         else
             --- LEVEL ONE (NIGHT) ---

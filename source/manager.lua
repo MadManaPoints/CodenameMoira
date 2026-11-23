@@ -19,7 +19,7 @@ Trackers =
                     right = 3,
                     left = 4,
                     brambles = { false, false },
-                    carrot = true
+                    carrot = false
                 },
 
                 room2 =
@@ -251,7 +251,7 @@ end
 function Manager:canoeSwitch(scene)
     self.room = scene
     gfx.sprite.removeAll()
-    local canoe = Canoe(200, 200)
+    local canoe = Canoe(200, 300)
     canoe:getRoom(self.room)
     self.room:add()
 end

@@ -9,6 +9,7 @@ import "CoreLibs/ui"
 
 -- MY SCRIPTS --
 import "dialogue"
+import "intro"
 import "verlet"
 import "manager"
 import "collider"
@@ -70,7 +71,9 @@ end
 
 local onDialogueEnd = function()
     CurrentDay += 1
-    ---[[
+    GAME_MANAGER:canoeSwitch(Room(20, "images/rooms/canoeing/canoeMap1", nil, true))
+
+    --[[
     GAME_MANAGER:switchScene
     (
         Room(1, "images/rooms/day1/room1"), 200, 200, true, false
@@ -159,6 +162,9 @@ local function initialize()
     --menu:addMenuItem("Switch", function() ChangeActivePlayer() end)
 
     --local verlet = Verlet(200, 80, 350, 200)
+
+    -- INTRO --
+    local intro = Intro()
 end
 
 local function counter()
