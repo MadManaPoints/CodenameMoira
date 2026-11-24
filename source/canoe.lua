@@ -10,6 +10,7 @@ local ticksPerRevolution = 1
 local crankMargin = 10
 local upsideDown = false
 local flipCheck = false
+local flipTimer = nil
 
 local velocity, drag <const> = 0, 0.005
 local dx, dy = 0, 0
@@ -200,15 +201,15 @@ function Canoe:update()
     -- ROTATE PLAYER BASED ON CRANK MOVEMENT (AND ORIENTATION) --
 
     --(upright)--
-    if not upsideDown and change > 20 and crankTicks == 1 then
+    if not upsideDown and change > 0 and crankTicks == 1 then
         velocity = 1.2
-        self:setRotation(self:getRotation() - change * 0.2)
+        self:setRotation(self:getRotation() - change * 0.3)
     end
 
     --(upside down)--
-    if upsideDown and change < -20 and crankTicks == -1 then
+    if upsideDown and change < 0 and crankTicks == -1 then
         velocity = 1.2
-        self:setRotation(self:getRotation() - change * 0.2)
+        self:setRotation(self:getRotation() - change * 0.3)
     end
 
     ---- MOVE PLAYER ----
@@ -241,6 +242,7 @@ function Canoe:getRoomObjects()
     local function exit()                                                           -- Called after minigame dialogue in canoe
         GAME_MANAGER:switchScene(Room(21, "images/rooms/canoeing/room4", nil, nil)) -- Fishing minigame
         gfx.setDrawOffset(0, 0)                                                     -- Reset 'camera'
+        DialogueY = 5
         local fishing = Fishing()
     end
 
