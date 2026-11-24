@@ -11,20 +11,22 @@ local crankMargin = 10
 local upsideDown = false
 local flipCheck = false
 
-local velocity, drag = 0, 0.005
+local velocity, drag <const> = 0, 0.005
 local dx, dy = 0, 0
 local timer = Timer(1)
 
-local enterTop, enterBottom = 6, 234
+local enterTop <const>, enterBottom <const> = 6, 234
 
-local camThresholdTop, camThresholdBottom = -240, 200
-local flippedCamThresholdTop, flippedCamThresholdBottom = 480, 40
+local camThresholdTop <const>, camThresholdBottom <const> = -240, 200
+local flippedCamThresholdTop <const>, flippedCamThresholdBottom <const> = 480, 40
 
 local outOfBoundsX, outOfBoundsY = false, false
 
 local y_target, y_prevTarget
 
 local offsetCheck = false
+
+local atTarget = false
 
 
 Canoe = {}
@@ -38,11 +40,21 @@ function Canoe:init(x, y)
     self:setCollideRect(0, 0, self:getSize())
     self:setCollidesWithGroups({ 1, 2, 3, 6 }) -- Same as player
     self:setGroups(2)
-    self:setZIndex(0)
+    self:setZIndex(5)
     self:moveTo(x, y)
-    y_target, y_prevTarget = -camThresholdBottom + 120, -camThresholdBottom + 120
-    self.room = nil
-    self.roomObjects = { self:getRoomObjects() }
+    y_target, y_prevTarget = -camThresholdBottom + 120, -camThresholdBottom + 120 -- Start at bottom of screen
+    self.room = nil                                                               -- Fills after function call
+    self.roomObjects = { self:getRoomObjects() }                                  -- Get all objects that need to be flipped
+
+    self.offsets = {}                                                             -- Room object offsets
+    for i = 0, #self.roomObjects - 2 do
+        local offsetTable = self.roomObjects[#self.roomObjects]
+        local getPosTable = { x = offsetTable[i + 1], y = offsetTable[#offsetTable - i] } -- Grab first and last elements and move inward
+        table.insert(self.offsets, getPosTable)                                           -- Update offset table
+    end
+
+    DialogueY = -355
+
     self:add()
 end
 
@@ -127,26 +139,45 @@ function Canoe:update()
     end
 
     -- Flip player, background and all room objects based on Playdate orientation
-    if gravityY <= -0.7 and not upsideDown then
-        upsideDown = true
-        self:moveTo(400 - self.x, 240 - self.y)
-        self.room:moveTo(400 - self.room.x, 240 - self.room.y)
-        self.room:setRotation(180)
-        self:setRotation(self:getRotation() + 180)
-        for i = 1, #self.roomObjects do
-            self.roomObjects[i]:moveTo(400 - self.roomObjects[i].x, 240 - self.roomObjects[i].y)
-            self.roomObjects[i]:setRotation(180)
+    if gravityY <= -0.7 and not upsideDown and not atTarget then
+        upsideDown = true                                      -- Run block only once
+        self:moveTo(400 - self.x, 240 - self.y)                -- Move player
+        self.room:moveTo(400 - self.room.x, 240 - self.room.y) -- Move room bg
+        self:setRotation(self:getRotation() + 180)             -- Flip player
+        self.room:setRotation(180)                             -- Flip room bg
+
+        for i = 1, #self.roomObjects - 1 do
+            self.roomObjects[i]:moveTo -- Move room objects into flipped positions
+            (
+                400 - self.roomObjects[i].x - self.offsets[i]["x"],
+                240 - self.roomObjects[i].y - self.offsets[i]["y"]
+            )
+
+            self.roomObjects[i]:setRotation(180) -- Flip room objects
         end
-    elseif gravityY >= 0.7 and upsideDown then
-        upsideDown = false
-        self:moveTo(400 - self.x, 240 - self.y)
-        self.room:moveTo(400 - self.room.x, 240 - self.room.y)
-        self.room:setRotation(0)
-        self:setRotation(self:getRotation() + 180)
-        for i = 1, #self.roomObjects do
-            self.roomObjects[i]:moveTo(400 - self.roomObjects[i].x, 240 - self.roomObjects[i].y)
-            self.roomObjects[i]:setRotation(0)
+    elseif (atTarget or gravityY >= 0.7) and upsideDown then
+        upsideDown = false                                     -- Run block only once
+        self:moveTo(400 - self.x, 240 - self.y)                -- Move player
+        self.room:moveTo(400 - self.room.x, 240 - self.room.y) -- Move room bg
+        self:setRotation(self:getRotation() + 180)             -- Flip player
+        self.room:setRotation(0)                               -- Flip room bg
+
+        for i = 1, #self.roomObjects - 1 do
+            self.roomObjects[i]:moveTo -- Move room objects into standard positions
+            (
+                400 - self.roomObjects[i].x - self.offsets[i]["x"],
+                240 - self.roomObjects[i].y - self.offsets[i]["y"]
+            )
+
+            self.roomObjects[i]:setRotation(0) -- Flip room objects
         end
+    end
+
+    if atTarget and not upsideDown then
+        local _x = pd.math.lerp(self.x, self.roomObjects[1].x + 10, 0.05)
+        local _y = pd.math.lerp(self.y, self.roomObjects[1].y + 10, 0.05)
+        self:moveTo(_x, _y)
+        return
     end
 
     local goalX, goalY = self.x, self.y
@@ -195,6 +226,10 @@ function Canoe:update()
             local pushY = directionY > 0 and -1 or 1                -- Push away from direction
             self:moveWithCollisions(self.x + pushX, self.y + pushY) -- Apply push
         end
+
+        if colSP:isa(DialogueTrigger) then
+            atTarget = true
+        end
     end
 end
 
@@ -214,45 +249,15 @@ function Canoe:getRoomObjects()
             200, -300, 20, 20, "This looks like a good spot.", false, false, exit
         )
 
-    --local obstacle1 = WaterObstacle(100, 100, 20, 20)
-    --local fish = AnimatedObject(110, 110, "images/fishingSpotAnim/fishingSpot")
+    local obstacle1 = WaterObstacle(170, -60, 73, 90)                            -- Create collider for island
+    local fish = AnimatedObject(210, -290, "images/fishingSpotAnim/fishingSpot") -- Add fishing spot animated sprite
+    local offsets = { 20, 73, 0, 0, 90, 20 }                                     -- Offsets for realigning colliders when flipped
 
-    local obstacle1 = WaterObstacle(170, -60, 73, 90)
-
-    local fish = AnimatedObject(210, -290, "images/fishingSpotAnim/fishingSpot")
-
-    return minigameTrigger, obstacle1, fish
+    return minigameTrigger, obstacle1, fish, offsets
 end
 
 function Canoe:collisionResponse(other)
     if other:isa(Trigger) then
         return 'overlap'
-    end
-end
-
--- Probably not using this version
-function Canoe:switchRooms(x, y)
-    if y < 0 then
-        for k, r in pairs(Trackers.day.day1.canoeing) do
-            if r.id == RoomID then
-                GAME_MANAGER:canoeSwitch
-                (
-                    Room(r.up, "images/rooms/canoeing/room" .. tostring(r.up)), x, enterBottom
-                )
-                break
-            end
-        end
-    end
-
-    if y > 240 then
-        for k, r in pairs(Trackers.day.day1.canoeing) do
-            if r.id == RoomID then
-                GAME_MANAGER:canoeSwitch
-                (
-                    Room(r.down, "images/rooms/canoeing/room" .. tostring(r.down)), x, enterTop
-                )
-                break
-            end
-        end
     end
 end

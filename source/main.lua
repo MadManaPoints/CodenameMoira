@@ -47,7 +47,7 @@ local gfx <const> = pd.graphics
 --- DIALOGUE ---
 ------------------------------------------------------------------
 Dialogue = nil
-local x, y = 5, 5
+DialogueX, DialogueY = 5, 5
 
 function StartDialogue(text, _onClose)
     local width, height = 390, 56
@@ -205,7 +205,7 @@ function pd.update()
     ---[[
     if Dialogue ~= nil and Dialogue.enabled then
         Dialogue:update()
-        Dialogue:draw(x, y)
+        Dialogue:draw(DialogueX, DialogueY)
     else
         pdDialogue.update()
     end
